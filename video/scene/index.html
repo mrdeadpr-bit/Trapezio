@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cena Claude Code</title>
+<style>
+  html, body { margin: 0; background: #0b0d14; overflow: hidden; }
+  #wrap { position: relative; width: 720px; height: 1280px; overflow: hidden; }
+  canvas { display: block; }
+  #vig { position: absolute; inset: 0; pointer-events: none;
+         background: radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 55%, rgba(5,8,25,.45) 100%); }
+  #cap { position: absolute; left: 36px; right: 36px; top: 150px; text-align: center; color: #fff;
+         font: 700 44px/1.18 "Inter", "DejaVu Sans", sans-serif; letter-spacing: -.01em;
+         text-shadow: 0 2px 10px rgba(0,0,0,.55), 0 0 2px rgba(0,0,0,.6); white-space: pre-line; }
+  #key { position: absolute; left: 50%; bottom: 250px; transform: translateX(-50%); padding: 16px 34px;
+         border-radius: 20px; background: #fff; color: #d97757; font: 800 54px/1 "Inter", "DejaVu Sans", sans-serif;
+         box-shadow: 0 8px 0 #1f2230, 0 14px 30px rgba(0,0,0,.35); border: 4px solid #1f2230; white-space: pre; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="vig"></div>
+  <div id="cap"></div>
+  <div id="key" style="display:none"></div>
+</div>
+<script src="three.min.js"></script>
+<script src="timeline.js"></script>
+<script>
+const W = 720, H = 1280;
+const DPR = +(new URLSearchParams(location.search).get("dpr") || 1.5);
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(DPR); renderer.setSize(W, H);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+document.getElementById("wrap").prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x5d6fa4);
+scene.fog = new THREE.Fog(0x5d6fa4, 22, 48);
+const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 100);
+
+// ---------- helpers ----------
+const mats = {};
+function mat(hex, rough = 0.85, emissive = 0) {
+  const k = hex + "_" + rough + "_" + emissive;
+  if (!mats[k]) mats[k] = new THREE.MeshStandardMaterial({ color: hex, roughness: rough, metalness: 0, emissive: emissive ? hex : 0, emissiveIntensity: emissive });
+  return mats[k];
+}
+function box(w, h, d, color, x, y, z, parent = scene, opts = {}) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), opts.material || mat(color, opts.rough ?? 0.85, opts.emissive || 0));
+  m.position.set(x, y, z); m.castShadow = opts.cast !== false; m.receiveShadow = opts.receive !== false;
+  parent.add(m); return m;
+}
+function canvasTex(w, h, draw) {
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const ctx = c.getContext("2d"); draw(ctx, w, h);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; t.needsUpdate = true;
+  return { canvas: c, ctx, tex: t };
+}
+
+// ---------- quarto ----------
+const SKIN = 0xf3d2bb, SKIN_D = 0xe3b99c, ORANGE = 0xd9703f, ORANGE_D = 0xb85a30, DARK = 0x1c1c2b;
+// piso
+box(40, 0.4, 24, 0x7b4f35, 0, -0.2, -2);
+for (let i = -9; i < 10; i++) box(0.04, 0.02, 24, 0x5f3b27, i * 2.1, 0.01, -2, scene, { cast: false });
+box(7, 0.04, 5, 0x3c4a82, 4.5, 0.03, 3.5, scene, { cast: false }); // tapete
+// paredes
+box(40, 14, 0.4, 0x6b7db3, 0, 7, -4.7);
+box(0.4, 14, 24, 0x62749f, -10, 7, -2);
+box(40, 0.25, 0.3, 0xe9e6e1, 0, 0.12, -4.4, scene, { cast: false }); // rodapé
+// janela
+box(5.4, 5.2, 0.12, 0xdce8ff, 5.0, 5.0, -4.46, scene, { material: new THREE.MeshBasicMaterial({ color: 0xcfe0ff }), cast: false, receive: false });
+[[5.0, 2.35, 5.8, 0.28], [5.0, 7.65, 5.8, 0.28]].forEach(a => box(a[2], a[3], 0.3, 0xe7e9ee, a[0], a[1], -4.35));
+[[2.15, 5.0, 0.28, 5.4], [7.85, 5.0, 0.28, 5.4], [5.0, 5.0, 0.2, 5.4]].forEach(a => box(a[2], a[3], 0.3, 0xe7e9ee, a[0], a[1], -4.35));
+box(5.4, 0.2, 0.3, 0xe7e9ee, 5.0, 5.0, -4.35);
+// cortina azul
+box(1.5, 8.6, 0.35, 0x2f5fc4, 0.4, 5.0, -4.2);
+// quadro
+box(1.6, 2.1, 0.12, 0xf1ece4, -5.0, 6.2, -4.45); box(1.25, 1.75, 0.14, 0x5aa0d8, -5.0, 6.2, -4.42);
+// cama
+box(9.6, 1.0, 7, 0x4d3226, -5.2, 0.5, -0.8);             // estrado
+box(9.4, 0.5, 6.7, 0xefece6, -5.2, 1.25, -0.8);           // colchão
+box(5.6, 0.32, 6.78, 0x2f5fc4, -7.6, 1.6, -0.8);          // cobertor
+box(0.5, 3.0, 7.2, 0x3d281d, -10.1, 1.9, -0.8);           // cabeceira
+box(1.5, 0.45, 2.2, 0xf8f6f1, -9.0, 1.7, -0.2);           // travesseiro
+// criado-mudo
+box(2.2, 2.3, 2.2, 0x4a2f22, 3.1, 1.15, -0.2);
+box(2.0, 0.08, 2.0, 0x5b3a2b, 3.1, 2.34, -0.2, scene, { cast: false });
+box(1.7, 0.06, 0.05, 0x2a1810, 3.1, 1.2, 0.93, scene, { cast: false });
+box(0.3, 0.1, 0.1, 0xd0b27a, 3.1, 1.2, 0.97, scene, { cast: false });
+// luminária
+box(0.6, 0.15, 0.6, 0x15151c, 3.95, 2.45, -0.75);
+box(0.16, 1.3, 0.16, 0x15151c, 3.95, 3.1, -0.75);
+box(1.0, 0.8, 1.0, 0xf1e6cf, 3.95, 4.0, -0.75, scene, { emissive: 0.45 });
+const lamp = new THREE.PointLight(0xffc98a, 0.9, 12, 1.6); lamp.position.set(3.95, 4.0, -0.4); scene.add(lamp);
+// relógio
+const clk = canvasTex(256, 128, (c, w, h) => {
+  c.fillStyle = "#0e0a0a"; c.fillRect(0, 0, w, h);
+  c.fillStyle = "#ff4a24"; c.font = "bold 84px 'DejaVu Sans Mono', monospace"; c.textAlign = "center"; c.textBaseline = "middle";
+  c.shadowColor = "#ff4a24"; c.shadowBlur = 14; c.fillText("08:12", w / 2, h / 2 + 4);
+});
+box(1.0, 0.5, 0.45, 0x17171c, 2.45, 2.62, 0.35);
+const clockFace = new THREE.Mesh(new THREE.PlaneGeometry(0.88, 0.38), new THREE.MeshBasicMaterial({ map: clk.tex }));
+clockFace.position.set(2.45, 2.62, 0.585); scene.add(clockFace);
+
+// ---------- luz ----------
+scene.add(new THREE.HemisphereLight(0xb8c6ff, 0x6a5a58, 0.75));
+const sun = new THREE.DirectionalLight(0xfff1dd, 1.5);
+sun.position.set(5, 11, 9); sun.target.position.set(0, 1, 0); scene.add(sun, sun.target);
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 4; sun.shadow.bias = -0.0004;
+Object.assign(sun.shadow.camera, { left: -12, right: 12, top: 10, bottom: -8, near: 1, far: 40 }); sun.shadow.camera.updateProjectionMatrix();
+const fill = new THREE.DirectionalLight(0x8fa6ff, 0.4); fill.position.set(-6, 4, 8); scene.add(fill);
+const front = new THREE.PointLight(0xfff0e0, 1.1, 18, 1.2); front.position.set(2.6, 5.5, 5.5); scene.add(front);
+
+// ---------- você (boneco de blocos, pele clara, sem barba) ----------
+const user = new THREE.Group(); user.position.set(-1.1, 1.5, 0.2); user.rotation.y = -0.38; scene.add(user);
+const U = {};
+U.torso = box(0.8, 1.4, 1.35, ORANGE, 0, 0.75, 0, user);
+box(0.82, 0.22, 1.37, ORANGE_D, 0, 0.12, 0, user);
+box(0.06, 0.55, 0.06, 0xffffff, 0.42, 1.0, -0.12, user); box(0.06, 0.55, 0.06, 0xffffff, 0.42, 1.0, 0.12, user); // cordões
+box(0.3, 0.9, 0.9, ORANGE_D, -0.2, 1.3, 0, user, { cast: false }); // capuz atrás
+U.head = new THREE.Group(); U.head.position.set(0.05, 1.98, 0); user.add(U.head);
+box(1.0, 1.0, 1.0, SKIN, 0, 0, 0, U.head);
+box(1.06, 0.38, 1.06, 0x15151a, -0.02, 0.58, 0, U.head);          // cabelo topo
+box(0.3, 0.95, 1.06, 0x15151a, -0.4, 0.05, 0, U.head);            // cabelo atrás
+box(0.55, 0.22, 1.06, 0x15151a, 0.28, 0.5, 0, U.head);            // franja
+box(0.1, 0.5, 0.18, 0x15151a, 0.5, 0.3, -0.45, U.head);           // costeletas
+box(0.1, 0.5, 0.18, 0x15151a, 0.5, 0.3, 0.45, U.head);
+U.eyes = [-0.24, 0.24].map(z => box(0.04, 0.14, 0.14, 0x1a1a22, 0.51, 0.08, z, U.head, { cast: false }));
+[-0.24, 0.24].forEach(z => box(0.04, 0.05, 0.28, 0x2a2a30, 0.52, 0.27, z, U.head, { cast: false })); // sobrancelhas
+box(0.14, 0.16, 0.14, SKIN_D, 0.56, -0.08, 0, U.head);            // nariz
+U.mouth = box(0.04, 0.08, 0.3, 0x8a3b3b, 0.51, -0.3, 0, U.head, { cast: false });
+box(0.1, 0.22, 0.14, SKIN_D, 0.0, 0.0, -0.53, U.head); box(0.1, 0.22, 0.14, SKIN_D, 0.0, 0.0, 0.53, U.head); // orelhas
+// braços
+U.arms = [-1, 1].map(s => {
+  const g = new THREE.Group(); g.position.set(0.0, 1.25, s * 0.82); user.add(g);
+  const up = box(0.34, 0.95, 0.34, ORANGE, 0.12, -0.42, 0, g); up.rotation.z = 0.45; up.position.set(0.17, -0.42, 0);
+  const fo = box(0.95, 0.3, 0.3, ORANGE, 0.65, -0.88, 0, g);
+  box(0.28, 0.26, 0.3, SKIN, 1.2, -0.9, 0, g);
+  g.userData.fo = fo; return g;
+});
+// pernas
+[-1, 1].forEach(s => {
+  box(1.3, 0.45, 0.5, DARK, 0.7, -0.15, s * 0.42, user);
+  box(0.5, 1.15, 0.5, DARK, 1.25, -0.85, s * 0.42, user);
+  box(0.8, 0.28, 0.52, 0xf2f2f2, 1.45, -1.42, s * 0.42, user);
+});
+// notebook
+const lapGroup = new THREE.Group(); lapGroup.position.set(0.95, 0.2, 0); user.add(lapGroup);
+box(1.05, 0.07, 1.35, 0xc9ccd4, 0, 0.0, 0, lapGroup, { rough: 0.4 });
+box(0.75, 0.02, 1.15, 0x2b2d35, -0.05, 0.05, 0, lapGroup, { cast: false });
+const hinge = new THREE.Group(); hinge.position.set(0.5, 0.04, 0); hinge.rotation.z = -0.22; lapGroup.add(hinge);
+const scr = canvasTex(1024, 768, () => {});
+const screenMats = [mat(0xc9ccd4, 0.4), new THREE.MeshBasicMaterial({ map: scr.tex }), mat(0xc9ccd4, 0.4), mat(0xc9ccd4, 0.4), mat(0xc9ccd4, 0.4), mat(0xc9ccd4, 0.4)];
+const screenMesh = box(0.06, 1.0, 1.35, 0xc9ccd4, 0, 0.5, 0, hinge, { material: screenMats });
+
+// ---------- Claude (mascote) ----------
+const mascot = new THREE.Group(); mascot.position.set(3.15, 2.38, -0.15); mascot.rotation.y = Math.PI + 0.42; scene.add(mascot);
+const M = {};
+M.body = new THREE.Group(); mascot.add(M.body);
+box(1.4, 1.35, 1.9, 0xe0714a, 0, 1.4, 0, M.body, { emissive: 0.32 });                         // corpo/cabeça (forward = +x)
+M.eyes = [-0.45, 0.45].map(z => box(0.06, 0.4, 0.22, 0x1a1218, 0.72, 1.6, z, M.body, { cast: false }));
+M.mouth = box(0.06, 0.1, 0.4, 0x1a1218, 0.72, 1.12, 0, M.body, { cast: false });
+box(1.43, 0.4, 1.92, 0xf3e3cf, 0, 0.95, 0, M.body, { emissive: 0.2 });                         // barriga creme
+M.armL = box(0.3, 0.55, 0.3, 0xe0714a, 0.1, 1.2, -1.1, M.body, { emissive: 0.3 });
+M.armR = box(0.3, 0.55, 0.3, 0xe0714a, 0.1, 1.2, 1.1, M.body, { emissive: 0.3 });
+M.legs = [[-0.45, -0.7], [-0.45, 0.7], [0.4, -0.7], [0.4, 0.7]].map(p => box(0.35, 0.65, 0.35, 0xc95f3a, p[0], 0.33, p[1], mascot));
+
+// ---------- terminal no notebook ----------
+function drawScreen(spec, tl) {
+  const c = scr.ctx, w = 1024, h = 768;
+  c.fillStyle = "#17181f"; c.fillRect(0, 0, w, h);
+  c.fillStyle = "#23242d"; c.fillRect(0, 0, w, 58);
+  ["#ff5f57", "#febc2e", "#28c840"].forEach((col, i) => { c.fillStyle = col; c.beginPath(); c.arc(36 + i * 36, 29, 10, 0, 7); c.fill(); });
+  c.fillStyle = "#8d8fa0"; c.font = "26px 'DejaVu Sans Mono', monospace"; c.textAlign = "center";
+  c.fillText("claude — ~/meu-projeto", w / 2, 38);
+  c.textAlign = "left";
+  c.fillStyle = "#e0714a"; c.font = "bold 34px 'DejaVu Sans Mono', monospace"; c.fillText("✻ Claude Code", 40, 120);
+  c.fillStyle = "#6f7186"; c.font = "26px 'DejaVu Sans Mono', monospace"; c.fillText("/help para ver os comandos", 40, 158);
+  const lines = []; let typing = null, footer = "";
+  (spec.hist || []).forEach(l => lines.push(l));
+  const p = tl;
+  (spec.footer || []).forEach(f => { if (p >= f[0]) footer = f[1]; });
+  (spec.events || []).forEach(ev => {
+    if (p < ev.f) return;
+    if (ev.kind === "line") lines.push([ev.text, ev.color || "#ffffff"]);
+    else if (ev.kind === "type") {
+      const q = Math.min(1, (p - ev.f) / Math.max(0.001, ev.f1 - ev.f));
+      const n = Math.floor(q * ev.text.length);
+      if (q >= 1) lines.push(["> " + ev.text, "#ffffff"]); else typing = ev.text.slice(0, n);
+    }
+  });
+  c.font = "30px 'DejaVu Sans Mono', monospace";
+  let y = 230; const visible = lines.slice(-8);
+  visible.forEach(([t, col]) => { c.fillStyle = col; c.fillText(t, 40, y); y += 46; });
+  // caixa de prompt
+  const by = 590;
+  c.strokeStyle = "#4a4c5c"; c.lineWidth = 3; c.strokeRect(28, by, w - 56, 84);
+  c.fillStyle = "#e0714a"; c.fillText(">", 50, by + 55);
+  c.fillStyle = "#ffffff";
+  const txt = typing === null ? "" : typing;
+  c.fillText(txt, 92, by + 55);
+  if (typing !== null || Math.floor(tl * 12) % 2 === 0) { const cw = c.measureText(txt).width; c.fillStyle = "#e0714a"; c.fillRect(92 + cw + 2, by + 22, 16, 40); }
+  c.fillStyle = "#8d8fa0"; c.font = "26px 'DejaVu Sans Mono', monospace"; c.fillText(footer, 40, 722);
+  scr.tex.needsUpdate = true;
+}
+
+// ---------- timeline ----------
+const TL = window.TIMELINE; window.READY = true;
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t * t * (3 - 2 * t);
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+
+function currentLine(t) {
+  let cur = -1;
+  TL.lines.forEach((l, i) => { if (t >= l.start - 0.05 && t < l.end + 0.35) cur = i; });
+  return cur;
+}
+function ampOf(t, i) {
+  if (i < 0) return 0;
+  const l = TL.lines[i]; const f = (t - l.start) * TL.fps; if (f < 0 || f >= l.amp.length - 1) return 0;
+  const a = l.amp[Math.floor(f)], b = l.amp[Math.floor(f) + 1];
+  return clamp(Math.max(a, b) * 11);
+}
+
+window.setT = function (t) {
+  const cur = currentLine(t);
+  const ln = cur >= 0 ? TL.lines[cur] : null;
+  const talk = ampOf(t, cur);
+  const userTalk = ln && ln.who === "u" ? talk : 0, clTalk = ln && ln.who === "c" ? talk : 0;
+  const last = t > TL.lines[TL.lines.length - 1].start + 0.1;
+
+  // --- animação do boneco ---
+  const typingNow = ln && ln.screen && t >= ln.screen.cut && t < ln.screen.cut + ln.screen.seg;
+  U.head.position.y = 1.98 + Math.sin(t * 1.7) * 0.015 + userTalk * 0.03;
+  U.head.rotation.z = Math.sin(t * 2.3) * 0.015 + (userTalk > 0.2 ? Math.sin(t * 9) * 0.02 : 0);
+  U.head.rotation.y = ln && ln.who === "c" ? 0.1 : 0;
+  U.torso.scale.y = 1 + Math.sin(t * 1.7) * 0.01;
+  U.mouth.scale.y = 1 + userTalk * 4.5; U.mouth.scale.z = 1 + userTalk * 0.5;
+  const blink = (t % 3.2) < 0.12; U.eyes.forEach(e => e.scale.y = blink ? 0.1 : 1);
+  U.arms.forEach((g, i) => { g.userData.fo.position.y = -0.88 + (typingNow ? Math.sin(t * 22 + i * 2) * 0.03 : 0); });
+  if (ln && ln.final_u) U.arms[1].rotation.z = 0.0;
+
+  // --- animação do mascote ---
+  const bounce = Math.abs(Math.sin(t * 9)) * 0.1 * clTalk;
+  M.body.position.y = bounce + Math.sin(t * 2) * 0.012;
+  M.mouth.scale.y = 1 + clTalk * 5; M.mouth.scale.z = 1 + clTalk * 0.6;
+  M.eyes.forEach(e => { e.scale.y = last ? 0.3 : ((t + 1.1) % 3.7 < 0.12 ? 0.1 : 1); e.position.y = last ? 1.7 : 1.6; });
+  M.armR.rotation.x = last ? Math.sin(t * 9) * 0.5 - 1.2 : clTalk * Math.sin(t * 10) * 0.25;
+  M.armR.position.y = last ? 1.7 : 1.2;
+  M.armL.rotation.x = clTalk * Math.sin(t * 10 + 1) * -0.25;
+  M.legs.forEach((l, i) => l.position.y = 0.33 + (clTalk > 0.1 ? Math.max(0, Math.sin(t * 9 + i * 1.6)) * 0.05 : 0));
+
+  // --- tela do notebook ---
+  let badge = "";
+  if (ln && ln.screen) {
+    const s = ln.screen, f = clamp((t - s.cut) / s.seg);
+    drawScreen(s, t >= s.cut ? f : 0);
+  } else drawScreen({ events: [] }, 0);
+
+  // --- câmera ---
+  const uh = V(-1.15, 3.4, 0.25), mh = V(3.15, 3.95, -0.15);
+  const sc = V(0.34, 2.25, 0.7);                       // centro da tela
+  const fwd = V(Math.cos(-0.38), 0, -Math.sin(-0.38)); // direção que o usuário olha
+  let pos, look, fov = 42;
+  const seg = (a, b, k) => k;
+  const drift = Math.sin(t * 0.5) * 0.08;
+  if (last) { pos = V(1.6 + drift, 3.2, 14.5); look = V(1.6, 2.7, 0); fov = 40; }
+  else if (ln && ln.who === "u") {
+    const k = clamp((t - ln.start) / (ln.end - ln.start));
+    pos = V(lerp(1.6, 1.2, k) + drift, 3.7, lerp(7.4, 6.8, k)); look = V(-0.35, 3.1, 0.2);
+  } else if (ln && ln.screen && t >= ln.screen.cut) {
+    const k = clamp((t - ln.screen.cut) / ln.screen.seg);
+    const d = lerp(3.9, 3.5, k);
+    pos = sc.clone().addScaledVector(fwd, -d).add(V(0, 0.15, 0)); look = sc.clone().add(V(0, 0.06, 0)); fov = 40;
+  } else {
+    const k = ln ? clamp((t - ln.start) / (ln.end - ln.start)) : 0;
+    pos = V(lerp(1.9, 2.3, k) + drift, 4.1, lerp(8.8, 8.0, k)); look = V(3.1, 3.5, -0.1);
+  }
+  if (!ln && !last) { pos = V(1.0, 3.6, 12.5); look = V(1.0, 2.8, 0); fov = 40; }
+  camera.position.copy(pos); camera.fov = fov; camera.updateProjectionMatrix(); camera.lookAt(look);
+
+  // --- overlays ---
+  const cap = document.getElementById("cap"), key = document.getElementById("key");
+  cap.textContent = ln ? ln.cap : "";
+  const showKey = ln && ln.badge && t >= ln.screen.cut + 0.15 && t < ln.end + 0.3;
+  key.style.display = showKey ? "block" : "none";
+  if (showKey) { key.textContent = ln.badge; const k = clamp((t - ln.screen.cut - 0.15) * 5); key.style.transform = `translateX(-50%) scale(${0.7 + 0.3 * ease(k)})`; key.style.opacity = k; }
+
+  const screenShot = !last && ln && ln.who === 'c' && ln.screen && t >= ln.screen.cut;
+  user.children.forEach(c => c.visible = !screenShot || c === lapGroup);
+  renderer.render(scene, camera);
+};
+</script>
+</body>
+</html>

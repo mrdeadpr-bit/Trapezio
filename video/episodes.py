@@ -103,7 +103,7 @@ VPS = [
 ]
 
 EPISODES.update(
-    chat=dict(scene="couch", t0=0.12, music=1, script=CHAT),
-    madrugada=dict(scene="couch", t0=0.12, music=2, script=MADRUGADA),
-    vps=dict(scene="couch", t0=0.12, music=3, script=VPS),
+    chat=dict(scene="couch", t0=0.12, music=0, script=CHAT),
+    madrugada=dict(scene="couch", t0=0.12, music=0, script=MADRUGADA),
+    vps=dict(scene="couch", t0=0.12, music=0, script=VPS),
 )

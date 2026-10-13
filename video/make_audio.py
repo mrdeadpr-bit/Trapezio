@@ -27,14 +27,26 @@ def get_tts(name):
         model=f"{d}/pt_BR-{name}-medium.onnx", tokens=f"{d}/tokens.txt", data_dir=f"{d}/espeak-ng-data"), num_threads=4))
     _tts[name] = sherpa_onnx.OfflineTts(cfg); return _tts[name]
 
-def voice_line(i, who, text):
+def shape(x, sr, tone):
+    """Entonação via Praat: 'dry' achata o tom (seco, sem emoção); 'mock' exagera e arrasta (deboche)."""
+    if tone == "norm": return x
+    import parselmouth
+    from parselmouth.praat import call
+    snd = parselmouth.Sound(x.astype("float64"), sr)
+    med = call(snd.to_pitch(), "Get quantile", 0, 0, 0.5, "Hertz")
+    pm, rf, df = {"dry": (0.97, 0.30, 1.0), "mock": (1.08, 1.7, 1.12)}[tone]
+    out = call(snd, "Change gender", 75, 400, 1.0, med*pm, rf, df)
+    y = np.asarray(out.values[0], np.float32); return y / (np.abs(y).max() + 1e-9) * 0.9
+
+def voice_line(i, who, text, tone="norm"):
     raw = os.path.join(WORK, f"l{i}_raw.wav")
     ext = os.path.join(AUDIO_DIR, f"l{i}.wav") if AUDIO_DIR else ""
     if ext and os.path.exists(ext):
         raw = ext
     else:
         a = get_tts(VOICES[who]).generate(text, sid=0, speed=1.0)
-        sf.write(raw, np.asarray(a.samples, np.float32), a.sample_rate)
+        x = shape(np.asarray(a.samples, np.float32), a.sample_rate, tone)
+        sf.write(raw, x, a.sample_rate)
     out = os.path.join(WORK, f"l{i}.wav")
     af = ("silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=1:stop_threshold=-45dB:stop_duration=0.25,"
           "highpass=f=70,equalizer=f=140:t=h:w=120:g=2.5,equalizer=f=3500:t=q:w=1.2:g=1.5,"
@@ -46,7 +58,8 @@ def voice_line(i, who, text):
 
 t = META.get('t0', 0.5); lines = []
 for i, ln in enumerate(SCRIPT):
-    a = voice_line(i, ln["who"], ln["spoken"]); dur = len(a)/SR
+    tone = ln.get('tone') or ('mock' if ln.get('last') else ('dry' if ln['who'] == 'c' else 'norm'))
+    a = voice_line(i, ln["who"], ln["spoken"], tone); dur = len(a)/SR
     ln.update(start=round(t, 3), end=round(t+dur, 3)); lines.append(a)
     n = int(dur*FPS)+2; amp = []
     for f in range(n):

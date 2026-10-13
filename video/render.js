@@ -18,13 +18,16 @@ function serve() {
 (async () => {
   const list = process.argv[2].includes(",") ? process.argv[2].split(",").map(Number) : null;
   const [a, b] = list ? [0, list.length] : [+process.argv[2], +process.argv[3]];
-  const out = path.join(ROOT, "work", "frames"); fs.mkdirSync(out, { recursive: true });
+  const EP = process.env.EP || "esc", SCENE = process.env.SCENE || "index";
+  const out = path.join(ROOT, "work", EP, "frames"); fs.mkdirSync(out, { recursive: true });
+  const timeline = fs.readFileSync(path.join(ROOT, "scene", EP + ".timeline.js"), "utf8");
   const server = await serve(); const port = server.address().port;
   const browser = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
+  await page.addInitScript(timeline);
   page.on("pageerror", e => console.error("pageerror:", e.message));
   page.on("console", m => { if (m.type() === "error") console.error("console:", m.text()); });
-  await page.goto(`http://127.0.0.1:${port}/scene/index.html${process.env.QS || ''}`);
+  await page.goto(`http://127.0.0.1:${port}/scene/${SCENE}.html${process.env.QS || ''}`);
   await page.waitForFunction("window.READY === true", null, { timeout: 60000 });
   const fps = await page.evaluate("window.TIMELINE.fps");
   for (let n = a; n < b; n++) {

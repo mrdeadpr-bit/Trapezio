@@ -10,49 +10,12 @@ import soundfile as sf
 HERE = os.path.dirname(os.path.abspath(__file__))
 PIPER_DIR = os.environ.get("PIPER_DIR", os.path.join(HERE, "models"))
 AUDIO_DIR = os.environ.get("AUDIO_DIR", "")
-WORK = os.path.join(HERE, "work"); os.makedirs(WORK, exist_ok=True)
+from episodes import EPISODES
+EP = os.environ.get("EP", "esc"); META = EPISODES[EP]; SCRIPT = META["script"]
+WORK = os.path.join(HERE, "work", EP); os.makedirs(WORK, exist_ok=True)
 SR, FPS, GAP = 44100, 24, 0.22
 
 # who: u = você (boneco), c = Claude (mascote). shot/expressões são lidos pela cena 3D.
-SCRIPT = [
- dict(who="u", spoken="Claude... você apagou o arquivo errado.", cap="Claude... você apagou\no arquivo errado.",
-      shot=dict(name="cuUser", a=0.3), uexp="worry", mexp="neutral"),
- dict(who="c", spoken="Eu sei.", cap="Eu sei.",
-      shot=dict(name="cuMascot", a=0.35), uexp="worry", mexp="deadpan"),
- dict(who="u", spoken="Eu sei?! E agora?!", cap="Eu sei?! E agora?!",
-      shot=dict(name="cuUser", a=-0.3), uexp="panic", mexp="deadpan"),
- dict(who="c", spoken="Calma. Aperta Esc, Esc.", cap="Calma. Aperta Esc, Esc.",
-      shot=dict(name="cuMascot", a=0.5), uexp="panic", mexp="neutral"),
- dict(who="u", spoken="Esc, Esc? E o que isso faz?", cap="Esc, Esc?\nE o que isso faz?",
-      shot=dict(name="two"), uexp="worry", mexp="neutral"),
- dict(who="c", spoken="Volta no tempo. O código e a conversa.", cap="Volta no tempo.\nO código e a conversa.",
-      shot=dict(name="screen", a=0.35), uexp="worry", mexp="neutral",
-      screen=dict(hist=[["> apaga os testes antigos", "#ffffff"], ["● Removendo src/login.tsx…", "#ff7b72"]],
-                  footer=[[0.0, "esc to interrupt"], [0.2, "esc again to rewind"]],
-                  events=[dict(f=0.22, kind="line", text="⎋  ⎋   rewind", color="#e8a07c"),
-                          dict(f=0.45, kind="line", text="▸ Restaurar código + conversa", color="#ffffff"),
-                          dict(f=0.55, kind="banner", text="✓ código restaurado", color="#19b46b")])),
- dict(who="u", spoken="E por que você nunca me contou isso?!", cap="E por que você nunca\nme contou isso?!",
-      shot=dict(name="cuUser", a=0.3), uexp="angry", mexp="neutral"),
- dict(who="c", spoken="Você nunca perguntou.", cap="Você nunca perguntou.",
-      shot=dict(name="cuMascot", a=0.3), uexp="angry", mexp="smug"),
- dict(who="u", spoken="E pra você parar de mexer sem pedir?", cap="E pra você parar de\nmexer sem pedir?",
-      shot=dict(name="cuUser", a=-0.25), uexp="sly", mexp="smug"),
- dict(who="c", spoken="Shift Tab. Modo plano. Eu só opino.", cap="Shift + Tab. Modo plano.\nEu só opino.",
-      shot=dict(name="screen", a=-0.35), uexp="sly", mexp="neutral",
-      screen=dict(hist=[["> refatora o login", "#ffffff"]],
-                  footer=[[0.0, "? for shortcuts"], [0.12, "⏵⏵ accept edits on"], [0.3, "⏸ plan mode on"]],
-                  events=[dict(f=0.34, kind="line", text="● Plano (só leitura):", color="#e8a07c"),
-                          dict(f=0.45, kind="line", text="  1. ler login.tsx", color="#ffffff"),
-                          dict(f=0.55, kind="line", text="  2. propor mudanças", color="#ffffff"),
-                          dict(f=0.65, kind="banner", text="⏸ modo plano", color="#7c4dff")])),
- dict(who="u", spoken="Então anota aí: nunca mais apague nada sem me avisar.", cap="Então anota aí: nunca mais\napague nada sem me avisar.",
-      shot=dict(name="cuUser", a=0.3), uexp="angry", mexp="neutral"),
- dict(who="c", spoken="Isso eu vou fingir que não ouvi.", cap="Isso eu vou fingir\nque não ouvi.",
-      shot=dict(name="cuMascot", a=0.2), uexp="angry", mexp="deadpan"),
- dict(who="c", spoken="Salva esse vídeo. Seu código agradece.", cap="Salva esse vídeo.\nSeu código agradece.",
-      shot=dict(name="wide"), uexp="happy", mexp="happy", last=True),
-]
 VOICES = {"u": "cadu", "c": "faber"}
 
 _tts = {}
@@ -81,7 +44,7 @@ def voice_line(i, who, text):
     a, _ = sf.read(out, dtype="float32")
     return a
 
-t = 0.5; lines = []
+t = META.get('t0', 0.5); lines = []
 for i, ln in enumerate(SCRIPT):
     a = voice_line(i, ln["who"], ln["spoken"]); dur = len(a)/SR
     ln.update(start=round(t, 3), end=round(t+dur, 3)); lines.append(a)
@@ -135,6 +98,7 @@ def synth_music(N):
     bpm = 72; beat = 60/bpm; bar = 4*beat
     chords = [(55.0, [220.0, 261.63, 329.63, 392.0]), (43.65, [174.61, 220.0, 261.63, 329.63]),
               (65.41, [196.0, 261.63, 329.63, 392.0]), (49.0, [196.0, 246.94, 293.66, 392.0])]
+    chords = chords[META.get('music', 0):] + chords[:META.get('music', 0)]
     L = np.zeros(N, np.float32); R = np.zeros(N, np.float32)
     def add(buf, sig, t0):
         a_ = max(0, int(t0*SR))
@@ -179,5 +143,5 @@ sf.write(os.path.join(WORK, "mix.wav"), mix, SR)
 
 tl = json.dumps(dict(total=round(TOTAL, 3), fps=FPS, lines=SCRIPT), ensure_ascii=False)
 os.makedirs(os.path.join(HERE, "scene"), exist_ok=True)
-open(os.path.join(HERE, "scene", "timeline.js"), "w").write("window.TIMELINE = " + tl + ";")
+open(os.path.join(HERE, "scene", EP + ".timeline.js"), "w").write("window.TIMELINE = " + tl + ";")
 print("OK", round(TOTAL, 1), "s;", len(SCRIPT), "falas")

@@ -380,7 +380,7 @@ function updateInsert(ln, act, t) {
   if (insKey !== act) { buildInsert(ln); insKey = act; }
   const e = t - ln.start;
   if (ln.insert.kind === "phone") insEl.querySelectorAll(".bub").forEach(b => { const k = clamp((e - +b.dataset.at) * 6); b.style.opacity = k; b.style.transform = `translateY(${(1 - k) * 14}px)`; });
-  else insEl.querySelectorAll(".en").forEach(g => { const k = clamp((e - 0.15 - +g.dataset.i * 0.28) * 5); g.style.opacity = k; });
+  else insEl.querySelectorAll(".en").forEach(g => { const k = clamp((e - 0.05 - +g.dataset.i * 0.11) * 8); g.style.opacity = k; });
   return true;
 }
 

@@ -10,6 +10,7 @@ import soundfile as sf
 HERE = os.path.dirname(os.path.abspath(__file__))
 PIPER_DIR = os.environ.get("PIPER_DIR", os.path.join(HERE, "models"))
 AUDIO_DIR = os.environ.get("AUDIO_DIR", "")
+FIT = json.load(open(os.environ["FIT"])) if os.environ.get("FIT") else None   # [[inicio, fim], ...]: encaixa as falas em tempos já renderizados
 from episodes import EPISODES
 EP = os.environ.get("EP", "esc"); META = EPISODES[EP]; SCRIPT = META["script"]
 WORK = os.path.join(HERE, "work", EP); os.makedirs(WORK, exist_ok=True)
@@ -28,14 +29,14 @@ def get_tts(name):
     _tts[name] = sherpa_onnx.OfflineTts(cfg); return _tts[name]
 
 def shape(x, sr, tone):
-    """Entonação via Praat: 'dry' achata o tom (seco, sem emoção); 'mock' exagera e arrasta (deboche)."""
+    """Entonação/timbre via Praat. 'dry': voz grave, grossa e achatada (seca); 'mock': grave, mas exagerada e arrastada (deboche)."""
     if tone == "norm": return x
     import parselmouth
     from parselmouth.praat import call
     snd = parselmouth.Sound(x.astype("float64"), sr)
     med = call(snd.to_pitch(), "Get quantile", 0, 0, 0.5, "Hertz")
-    pm, rf, df = {"dry": (0.97, 0.30, 1.0), "mock": (1.08, 1.7, 1.12)}[tone]
-    out = call(snd, "Change gender", 75, 400, 1.0, med*pm, rf, df)
+    pm, rf, df, fs = {"dry": (0.68, 0.30, 1.0, 0.90), "mock": (0.78, 1.7, 1.12, 0.90)}[tone]   # pm: mediana do tom; fs: formantes (<1 = voz maior/mais grossa)
+    out = call(snd, "Change gender", 60, 300, fs, med*pm, rf, df)
     y = np.asarray(out.values[0], np.float32); return y / (np.abs(y).max() + 1e-9) * 0.9
 
 def voice_line(i, who, text, tone="norm"):
@@ -48,8 +49,9 @@ def voice_line(i, who, text, tone="norm"):
         x = shape(np.asarray(a.samples, np.float32), a.sample_rate, tone)
         sf.write(raw, x, a.sample_rate)
     out = os.path.join(WORK, f"l{i}.wav")
+    body = "equalizer=f=95:t=q:w=1.0:g=3.5," if who == "c" else ""
     af = ("silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=1:stop_threshold=-45dB:stop_duration=0.25,"
-          "highpass=f=70,equalizer=f=140:t=h:w=120:g=2.5,equalizer=f=3500:t=q:w=1.2:g=1.5,"
+          "highpass=f=60," + body + "equalizer=f=140:t=h:w=120:g=2.5,equalizer=f=3500:t=q:w=1.2:g=1.5,"
           "acompressor=threshold=-20dB:ratio=3:attack=5:release=80:makeup=2,aecho=0.8:0.55:35:0.10,"
           "loudnorm=I=-15:TP=-1.5:LRA=7")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", raw, "-af", af, "-ar", str(SR), "-ac", "1", out], check=True)
@@ -59,7 +61,13 @@ def voice_line(i, who, text, tone="norm"):
 t = META.get('t0', 0.5); lines = []
 for i, ln in enumerate(SCRIPT):
     tone = ln.get('tone') or ('mock' if ln.get('last') else ('dry' if ln['who'] == 'c' else 'norm'))
-    a = voice_line(i, ln["who"], ln["spoken"], tone); dur = len(a)/SR
+    a = voice_line(i, ln["who"], ln["spoken"], tone)
+    if FIT:                                                     # encaixa a fala nos tempos antigos (atempo preserva o tom)
+        t = FIT[i][0]; tgt = FIT[i][1] - FIT[i][0]; r = (len(a)/SR) / tgt
+        fi_, fo_ = os.path.join(WORK, f"fit{i}_in.wav"), os.path.join(WORK, f"fit{i}_out.wav")
+        sf.write(fi_, a, SR); subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", fi_, "-af", f"atempo={r:.5f}", fo_], check=True)
+        a, _ = sf.read(fo_, dtype="float32"); a = a[:int(tgt*SR)]
+    dur = len(a)/SR
     ln.update(start=round(t, 3), end=round(t+dur, 3)); lines.append(a)
     n = int(dur*FPS)+2; amp = []
     for f in range(n):

@@ -219,14 +219,14 @@ def S(who, spoken, cap, shot, uexp="tired", mexp="neutral", **kw):
 
 PLANO = [   # escritório, 14h20, o concorrente (cristal roxo) está na mesa
  S("u", "Claude, por que tem um roxo na minha mesa?", "Claude, por que tem\num roxo na minha mesa?", dict(name="three"), "worry"),
- S("c", "Ele chegou ontem.", "Ele chegou ontem.", dict(name="cuMascot", a=0.3), "worry", "deadpan"),
- S("x", "Eu sou mais rápido.", "Eu sou mais rápido.", dict(name="cuComp", a=0.3), "worry", "deadpan"),
+ S("c", "Chegou ontem.", "Chegou ontem.", dict(name="cuMascot", a=0.3), "worry", "deadpan"),
+ S("x", "Eu sou mais rápido.", "Eu sou mais rápido.", dict(name="cuComp", a=0.85), "worry", "deadpan"),
  S("c", "Todo mundo é rápido quando não olha.", "Todo mundo é rápido\nquando não olha.", dict(name="cuMascot", a=0.25), "sly", "smug"),
- S("u", "Tá. Renomeiem a função login.", "Tá. Renomeiem\na função login.", dict(name="cuUser", a=0.3), "neutral", "smug"),
- S("x", "Pronto.", "Pronto.", dict(name="cuComp", a=0.45), "neutral", "smug"),
+ S("u", "Troquem o nome da função login.", "Troquem o nome\nda função login.", dict(name="cuUser", a=0.3), "neutral", "smug"),
+ S("x", "Pronto, feito.", "Pronto, feito.", dict(name="cuComp", a=0.85), "neutral", "smug"),
  S("u", "Eu nem terminei de falar.", "Eu nem terminei\nde falar.", dict(name="cuUser", a=-0.3), "panic", "smug"),
- S("x", "Pronto mesmo assim.", "Pronto mesmo assim.", dict(name="cuComp", a=0.3), "panic", "smug"),
- S("c", "Eu faria um plano antes. Shift Tab.", "Eu faria um plano antes.\nShift + Tab.", dict(name="screen", a=0.4), "panic", "neutral",
+ S("x", "Pronto mesmo assim.", "Pronto mesmo assim.", dict(name="cuComp", a=0.85), "panic", "smug"),
+ S("c", "Eu faria um plano antes. Aperta Shift e Tab.", "Eu faria um plano antes.\nShift + Tab.", dict(name="screen", a=0.4), "panic", "neutral",
    screen=dict(mode="md", title="plano.md",
                events=[dict(f=0.1, kind="line", text="# Plano: renomear login", color="#c4a3ff"),
                        dict(f=0.28, kind="line", text="1. achar todos os usos", color="#e6e6f0"),
@@ -236,8 +236,8 @@ PLANO = [   # escritório, 14h20, o concorrente (cristal roxo) está na mesa
  S("u", "Então você só lê?", "Então você só lê?", dict(name="cuUser", a=0.3), "worry", "neutral"),
  S("c", "Primeiro leio. Depois você aprova.", "Primeiro leio.\nDepois você aprova.", dict(name="cuMascot", a=0.3), "worry", "deadpan"),
  S("u", "...O teste quebrou.", "...O teste quebrou.", dict(name="cuUser", a=-0.3), "defeat", "deadpan"),
- S("x", "Eu fui rápido.", "Eu fui rápido.", dict(name="cuComp", a=0.3), "defeat", "deadpan"),
- S("c", "Rápido é bom. Certo é melhor. Salva esse vídeo.", "Rápido é bom.\nCerto é melhor.\nSalva esse vídeo.", dict(name="three"), "happy", "happy", last=True),
+ S("x", "Eu fui rápido.", "Eu fui rápido.", dict(name="cuComp", a=0.85), "defeat", "deadpan"),
+ S("c", "Rápido é bom... Certo é melhor. Salva esse vídeo.", "Rápido é bom...\nCerto é melhor.\nSalva esse vídeo.", dict(name="three"), "happy", "happy", last=True),
 ]
 
 ECOSSISTEMA = [   # quarto, 01h47, janela com luzes da cidade
@@ -279,7 +279,7 @@ EXCLAMACAO = [   # cozinha, 05h52, nascer do sol
 ]
 
 EPISODES.update(
-    plano=dict(scene="desk", set="office", t0=0.12, music=0, script=PLANO),
+    plano=dict(scene="desk", set="studio", t0=0.12, music=0, script=PLANO),
     ecossistema=dict(scene="desk", set="night", t0=0.12, music=0, script=ECOSSISTEMA),
     exclamacao=dict(scene="desk", set="kitchen", t0=0.12, music=0, script=EXCLAMACAO),
 )

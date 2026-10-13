@@ -174,16 +174,38 @@ box(1.45, 1.35, 2.1, [M.faceMat, orange, orange, orange, orange, orange], 0, 1.3
 M.legs = [[-0.5, -0.7], [-0.5, 0.7], [0.45, -0.7], [0.45, 0.7]].map(p => box(0.36, 0.7, 0.36, mat(0xf08a60), p[0], 0.35, p[1], mascot));
 M.armR = box(0.3, 0.6, 0.3, orange, 0.15, 1.25, 1.2, M.body); M.armL = box(0.3, 0.6, 0.3, orange, 0.15, 1.25, -1.2, M.body);
 
-// ---------- concorrente (cristal roxo com ">_") ----------
-const comp = new THREE.Group(); comp.position.set(5.6, 2.38, 0.2); comp.rotation.y = Math.PI + 0.3; comp.visible = HAS_COMP; scene.add(comp);
+// ---------- concorrente: cluster de cristal low-poly (roxo/azul) com ">_" ----------
+const comp = new THREE.Group(); comp.position.set(6.0, 2.38, 0.0); comp.rotation.y = Math.PI + 0.3; comp.visible = HAS_COMP; scene.add(comp);
 const C = {}; C.body = new THREE.Group(); comp.add(C.body);
-const crystalGeo = new THREE.IcosahedronGeometry(1.15, 0); crystalGeo.scale(1, 1.25, 1);
-C.mesh = new THREE.Mesh(crystalGeo, new THREE.MeshStandardMaterial({ color: 0x7b4df2, roughness: 0.35, flatShading: true, emissive: 0x3a1fa0, emissiveIntensity: 0.6 }));
-C.mesh.position.y = 1.55; C.mesh.castShadow = true; C.body.add(C.mesh);
-const cSym = canvasTex(256, 192, (c, w, h) => { c.clearRect(0, 0, w, h); c.strokeStyle = "#ffffff"; c.lineWidth = 22; c.lineCap = "square"; c.beginPath(); c.moveTo(40, 40); c.lineTo(110, 96); c.lineTo(40, 152); c.stroke(); c.beginPath(); c.moveTo(130, 160); c.lineTo(220, 160); c.stroke(); });
-cSym.tex.colorSpace = THREE.SRGBColorSpace;
-C.sym = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.82), new THREE.MeshBasicMaterial({ map: cSym.tex, transparent: true })); C.sym.position.set(1.02, 1.55, 0); C.sym.rotation.y = Math.PI / 2; C.body.add(C.sym);
-box(1.5, 0.3, 1.5, mat(0x2a2150), 0, 0.15, 0, comp);
+function hash3(x, y, z) { const v = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453; return v - Math.floor(v); }
+function crystalLump(r, detail, seed, sx = 1, sy = 1, sz = 1) {
+  const g = new THREE.IcosahedronGeometry(r, detail); const pos = g.attributes.position, col = [];
+  for (let i = 0; i < pos.count; i++) {                                    // deforma pela posição: vértices compartilhados se movem juntos
+    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i), k = 0.78 + 0.5 * hash3(Math.round(x * 20) + seed, Math.round(y * 20), Math.round(z * 20));
+    pos.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
+  }
+  g.computeVertexNormals(); const nrm = new THREE.Vector3();
+  const palette = [0x4a28d6, 0x6a3df0, 0x7d55f7, 0x5a35e8, 0x9473ff, 0x3a1fb8].map(h => new THREE.Color(h));
+  for (let t = 0; t < pos.count; t += 3) {                                 // cada triângulo ganha uma cor própria (efeito facetado)
+    const cx = (pos.getX(t) + pos.getX(t + 1) + pos.getX(t + 2)) / 3, cy = (pos.getY(t) + pos.getY(t + 1) + pos.getY(t + 2)) / 3, cz = (pos.getZ(t) + pos.getZ(t + 1) + pos.getZ(t + 2)) / 3;
+    nrm.set(cx, cy, cz).normalize(); const base = palette[Math.floor(hash3(t, seed, 7) * palette.length)].clone();
+    base.multiplyScalar(0.7 + 0.35 * (nrm.y * 0.5 + 0.5) + 0.25 * hash3(t, 3, seed)); for (let j = 0; j < 3; j++) col.push(base.r, base.g, base.b);
+  }
+  g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3)); return g;
+}
+const crystalMat = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.3, metalness: 0.12, emissive: 0x2d1a9a, emissiveIntensity: 0.55 });
+[[1.25, 1.7, 0, 0.0, 1.0, 1.0, 1.1, 1], [0.95, 2.7, 0.45, 0.35, 1, 1, 1, 2], [0.85, 2.5, -0.55, -0.45, 1, 1, 1, 3], [0.8, 1.2, 0.2, 0.95, 1, 0.9, 1, 4], [0.75, 1.15, -0.1, -0.95, 1, 0.9, 1, 5], [0.7, 2.0, 0.9, -0.2, 1, 1, 1, 6]].forEach(([r, y, x, z, sx, sy, sz, seed]) => {
+  const m = new THREE.Mesh(crystalLump(r, 1, seed * 11, sx, sy, sz), crystalMat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; C.body.add(m); });
+C.mesh = C.body;
+const cSym = canvasTex(256, 192, (c, w, h) => { c.clearRect(0, 0, w, h); c.strokeStyle = "#ffffff"; c.lineWidth = 20; c.lineCap = "square"; c.lineJoin = "miter"; c.beginPath(); c.moveTo(34, 38); c.lineTo(104, 92); c.lineTo(34, 146); c.stroke(); c.beginPath(); c.moveTo(130, 150); c.lineTo(214, 150); c.stroke(); });
+C.sym = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.64), new THREE.MeshBasicMaterial({ map: cSym.tex, transparent: true })); C.sym.position.set(1.6, 1.25, 0.1); C.sym.rotation.y = Math.PI / 2; C.body.add(C.sym);
+if (HAS_COMP) {
+  scene.updateMatrixWorld(true); const rc = new THREE.Raycaster(), meshes = C.body.children.filter(o => o.isMesh && o !== C.sym);
+  const o = C.body.localToWorld(new THREE.Vector3(5, 1.05, 0.25)), dir = C.body.localToWorld(new THREE.Vector3(0, 1.05, 0.25)).sub(o).normalize();
+  rc.set(o, dir); const hit = rc.intersectObjects(meshes, false)[0];
+  if (hit) { const lp = C.body.worldToLocal(hit.point.clone()); C.sym.position.set(lp.x + 0.07, lp.y, lp.z); }
+}
+if (HAS_COMP) { const cl = new THREE.PointLight(0x8a5cff, 3.0, 10, 1.4); cl.position.set(5.2, 4.2, 1.8); scene.add(cl); }
 
 // ---------- cenários ----------
 const R_ = (x) => x;
@@ -289,7 +311,37 @@ function buildKitchen() {
   const fillM = new THREE.DirectionalLight(0xffe9d0, 0.9); fillM.position.set(-6, 5, 8); scene.add(fillM);
   bloomK = 0.12;
 }
-({ night: buildNight, office: buildOffice, kitchen: buildKitchen })[SETN]();
+
+function buildStudio() {
+  scene.background = new THREE.Color(0x120c2a);
+  box(50, 0.4, 30, mat(0x1b1535), 0, -0.2, -2); box(9, 0.05, 6, mat(0x3a2a7a), 1.5, 0.03, 3.5, scene, { cast: false });
+  box(52, 17, 0.4, mat(0x2a1f55), 0, 8.5, -4.7); box(0.4, 17, 30, mat(0x241a4a), -11, 8.5, -2); box(52, 0.3, 0.3, mat(0x5a4a9a), 0, 0.15, -4.4, scene, { cast: false });
+  box(52, 0.12, 0.12, glowMat(0xb06cff, 2.2), 0, 9.6, -4.4, scene, { cast: false }); box(52, 0.1, 0.1, glowMat(0x4fa8ff, 2.0), 0, 0.5, -4.3, scene, { cast: false });   // faixas de neon
+  const bt = bokehCanvas("#120a30", "#1d1450", ["#ff7ad9", "#8f6bff", "#5fb4ff", "#ffffff", "#ffd27a"], 90, 9);
+  const winM = new THREE.MeshBasicMaterial({ map: bt.tex }); winM.color.setRGB(1.1, 1.1, 1.1);
+  const wp = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 5.0), winM); wp.position.set(7.8, 5.2, -4.45); scene.add(wp);
+  const fr = mat(0x6a5aa8); [[7.8, 2.65, 7.0, 0.3], [7.8, 7.75, 7.0, 0.3]].forEach(a => box(a[2], a[3], 0.3, fr, a[0], a[1], -4.35)); [[4.35, 5.2, 0.3, 5.3], [11.25, 5.2, 0.3, 5.3], [7.8, 5.2, 0.16, 5.3]].forEach(a => box(a[2], a[3], 0.3, fr, a[0], a[1], -4.35));
+  box(5.2, 1.0, 3.0, mat(0x3b3470), -2.6, 1.0, 0.2); box(0.7, 2.4, 3.0, mat(0x322c64), -5.0, 2.0, 0.2); box(5.2, 1.6, 0.6, mat(0x322c64), -2.6, 1.8, -1.4);              // sofá
+  box(9.4, 0.2, 3.0, mat(0x2b2250), 5.8, 2.28, 0.0); [[2.0, -1.2], [2.0, 1.2], [9.6, -1.2], [9.6, 1.2]].forEach(p => box(0.25, 2.2, 0.25, mat(0x1d1740), p[0], 1.1, p[1]));    // mesa
+  const dk = canvasTex(512, 320, (c, w, h) => { c.fillStyle = "#1b2a5a"; c.fillRect(0, 0, w, h); c.fillStyle = "#101a3c"; c.fillRect(0, h - 26, w, 26);
+    for (let r = 0; r < 3; r++) for (let q = 0; q < 6; q++) { const x = 28 + q * 78, y = 24 + r * 84; c.fillStyle = (q + r) % 2 ? "#ffd23a" : "#f4f4f8"; c.fillRect(x, y, 44, 38); c.fillStyle = "rgba(0,0,0,.18)"; c.fillRect(x, y + 28, 44, 10); c.fillStyle = "#c9d3ff"; c.fillRect(x - 4, y + 48, 52, 6); } });
+  const dkM = new THREE.MeshBasicMaterial({ map: dk.tex }); dkM.color.setRGB(1.15, 1.15, 1.2);
+  box(3.4, 2.2, 0.15, mat(0x0f1020), 6.5, 3.55, -1.2); const scrm = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 2.0), dkM); scrm.position.set(6.5, 3.55, -1.12); scene.add(scrm); box(0.3, 0.7, 0.3, mat(0x0f1020), 6.5, 2.5, -1.2);   // monitor com ícones
+  box(1.6, 0.08, 0.6, mat(0x15151f), 4.6, 2.42, 1.0); box(0.4, 0.1, 0.55, mat(0x15151f), 5.9, 2.42, 1.0);                                                                      // teclado, mouse
+  box(0.6, 0.7, 0.6, mat(0xe9eefc), 8.9, 2.73, 0.8); box(0.25, 0.4, 0.12, mat(0xe9eefc), 9.3, 2.75, 0.8);                                                                        // caneca
+  box(4.2, 6.6, 1.4, mat(0x2a2050), -8.6, 3.3, -4.0); [1.5, 3.2, 4.9].forEach(y => box(3.8, 0.18, 1.3, mat(0x3a2f70), -8.6, y, -3.9));
+  ["#e5484d", "#7a5af8", "#ffd23a", "#4fa8ff", "#ff7ad9", "#5fd39a", "#e5484d"].forEach((c, i) => [1.7, 3.4, 5.1].forEach((y, j) => box(0.36, 1.1 + ((i + j) % 3) * 0.2, 1.0, mat(new THREE.Color(c)), -10.2 + i * 0.52, y + 0.62, -3.9)));
+  scene.add(new THREE.HemisphereLight(0x8a7cff, 0x24184a, 0.75));
+  const moon = new THREE.DirectionalLight(0xa39bff, 0.8); moon.position.set(-4, 11, 10); moon.target.position.set(0, 1, 0); scene.add(moon, moon.target);
+  moon.castShadow = true; moon.shadow.mapSize.set(2048, 2048); moon.shadow.radius = 5; moon.shadow.bias = -0.0003;
+  Object.assign(moon.shadow.camera, { left: -14, right: 14, top: 12, bottom: -9, near: 1, far: 48 }); moon.shadow.camera.updateProjectionMatrix();
+  const fill = new THREE.DirectionalLight(0xd6ccff, 0.6); fill.position.set(2, 6, 12); scene.add(fill);
+  const fillM = new THREE.DirectionalLight(0xffd9c0, 1.5); fillM.position.set(-2, 6, 9); scene.add(fillM);
+  const pink = new THREE.PointLight(0xff5fc8, 2.2, 14, 1.4); pink.position.set(-6, 7, 1); scene.add(pink);
+  const blue = new THREE.PointLight(0x4f9bff, 2.0, 14, 1.4); blue.position.set(9, 4, 3); scene.add(blue);
+  bloomK = 0.42;
+}
+({ night: buildNight, office: buildOffice, kitchen: buildKitchen, studio: buildStudio })[SETN]();
 
 // partículas flutuantes (poeira/brasas): ficam desfocadas e dão profundidade
 const PARTS = []; { const r = rng(21), col = SETN === "night" ? 0xffc477 : SETN === "kitchen" ? 0xffe2a8 : 0xffffff, mm = glowMat(col, SETN === "office" ? 0.9 : 1.8);
@@ -353,9 +405,9 @@ function shotFor(sh, k) {
   let pos, look, fov = 36, ap = 0.05; const a = sh.a || 0;
   if (sh.name === "cuUser") { const d = lerp(4.5, 4.0, k); pos = REST.uh.clone().addScaledVector(rotY(FU, a), d).add(V(0, 0.3, 0)); look = REST.uh.clone().add(V(0, 0.55, 0)); ap = 0.12; }
   else if (sh.name === "cuMascot") { const d = lerp(5.8, 5.2, k); pos = REST.mh.clone().addScaledVector(rotY(FM, a), d).add(V(0, 0.4, 0)); look = REST.mh.clone().add(V(0, 0.35, 0)); ap = 0.10; }
-  else if (sh.name === "cuComp") { const d = lerp(5.8, 5.2, k); pos = REST.ch.clone().addScaledVector(rotY(FC, a), d).add(V(0, 0.4, 0)); look = REST.ch.clone().add(V(0, 0.25, 0)); ap = 0.10; }
+  else if (sh.name === "cuComp") { const d = lerp(8.6, 7.8, k); pos = REST.ch.clone().addScaledVector(rotY(FC, a), d).add(V(0, 0.9, 0)); look = REST.ch.clone().add(V(0, 0.75, 0)); ap = 0.08; }
   else if (sh.name === "screen") { const d = lerp(4.3, 3.8, k), aa = sh.a || 0.35; pos = REST.sc.clone().addScaledVector(rotY(FU, aa * 1.2), -d * 0.95).add(V(0, 0.45 + k * 0.1, 0)); look = REST.sc.clone().add(V(0, 0.04, 0)); fov = 28; ap = 0.09; }
-  else if (sh.name === "three") { pos = V(lerp(2.2, 2.0, k), 4.4, lerp(19, 18, k)); look = V(2.1, 3.2, 0); fov = 48; ap = 0.03; }
+  else if (sh.name === "three") { pos = V(lerp(2.9, 2.7, k), 4.4, lerp(21, 20, k)); look = V(2.9, 3.2, 0); fov = 48; ap = 0.03; }
   else if (sh.name === "two") { pos = V(lerp(1.4, 1.2, k), 3.8, lerp(12, 11, k)); look = V(1.1, 3.2, 0); fov = 48; ap = 0.03; }
   else { pos = V(1.4, 3.6, 13.5); look = V(1.4, 2.9, 0); fov = 40; ap = 0.02; }
   return { pos, look, fov, ap };
@@ -412,7 +464,7 @@ window.setT = function (t) {
   M.body.position.y = Math.abs(Math.sin(t * 8)) * 0.06 * cTalk + Math.sin(t * 2) * 0.01;
   M.armR.rotation.x = last ? Math.sin(t * 9) * 0.5 - 1.2 : 0; M.armR.position.y = last ? 1.75 : 1.25;
   M.legs.forEach((l, i) => l.position.y = 0.35 + (cTalk > 0.12 ? Math.max(0, Math.sin(t * 8 + i * 1.6)) * 0.035 : 0));
-  if (HAS_COMP) { C.body.position.y = Math.sin(t * 1.6) * 0.06 + Math.abs(Math.sin(t * 8)) * 0.06 * xTalk; C.mesh.rotation.y = t * 0.25 + xTalk * 0.1; C.sym.material.opacity = (Math.floor(t * 2) % 2 === 0 || xTalk > 0.05) ? 1 : 0.75; }
+  if (HAS_COMP) { C.body.position.y = Math.sin(t * 1.6) * 0.06 + Math.abs(Math.sin(t * 8)) * 0.06 * xTalk; C.sym.material.opacity = (Math.floor(t * 2) % 2 === 0 || xTalk > 0.05) ? 1 : 0.75; }
   PARTS.forEach(p => p.m.position.set(p.x + Math.sin(t * p.sp + p.ph) * 0.6, p.y + Math.sin(t * p.sp * 1.3 + p.ph) * 0.4, p.z + Math.cos(t * p.sp + p.ph) * 0.5));
 
   if (ln.screen) drawScreen(ln.screen, clamp((t - ln.screen.cut) / ln.screen.seg), t); else drawScreen({ events: [] }, 0, t);

@@ -5,7 +5,11 @@ import numpy as np, soundfile as sf
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PIPER_DIR = os.environ.get("PIPER_DIR", os.path.join(HERE, "models"))
-VOICES = {"u": "cadu", "c": "faber", "x": "jeff"}
+VOICES = {"u": "cadu", "c": "faber", "x": "jeff"}                  # vozes Piper (boneco usa cadu)
+KOKORO_DIR = os.environ.get("KOKORO_DIR", os.path.join(HERE, "models"))
+KOKORO = {"u": "pm_santa", "c": "pm_alex", "x": "pf_dora"}           # os três em Kokoro (bem mais natural que o Piper), cada um com um timbre
+if os.environ.get("HUMAN_PIPER") == "1": KOKORO.pop("u")                  # HUMAN_PIPER=1 volta a voz antiga do boneco (Piper/cadu)
+USE_KOKORO = os.environ.get("USE_KOKORO", "1") == "1"
 SR = 44100
 
 PARAMS = dict(
@@ -15,6 +19,8 @@ PARAMS = dict(
     dry=dict(pm=0.66, rf=1.2, df=1.0, fs=0.96),                    # pm: tom (mediana) | rf: variação de entonação (>1 = natural/expressiva) | fs: formantes
     mock=dict(pm=0.76, rf=1.9, df=1.12, fs=0.96),
     echo=False, comp_ratio=2, phon=True,
+    kspeed=1.05, kspeed_mock=0.92,                                 # velocidade do Kokoro (normal / deboche)
+    kpitch=dict(u=1.0, c=0.78, x=0.92, c_mock=0.80),                      # razão de tom via Rubber Band (<1 = mais grave); timbre acompanha o tom
 )
 
 # grafia fonética só para o TTS (a legenda e o roteiro continuam com o texto original)
@@ -25,6 +31,20 @@ PHON = [
     (r"\bShift Tab\b", "xifti tábi"), (r"\bclaude traço p\b", "claude traço pê"), (r"\bprompt\b", "prômpiti"),
     (r"\blog\b", "lógui"), (r"\bcompact\b", "compáct"), (r"\bAPI\b", "a pê í"), (r"\bban\b", "bã"),
 ]
+
+_kok = None
+def get_kokoro():
+    global _kok
+    if _kok is None:
+        from kokoro_onnx import Kokoro
+        _kok = Kokoro(os.path.join(KOKORO_DIR, "kokoro.onnx"), os.path.join(KOKORO_DIR, "voices.bin"))
+    return _kok
+
+def rubber(x, sr, ratio):
+    """Muda o tom com Rubber Band (formantes deslocados junto: soa como uma voz realmente mais grave)."""
+    d = tempfile.mkdtemp(); a, b = os.path.join(d, "a.wav"), os.path.join(d, "b.wav"); sf.write(a, x, sr)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", a, "-af", f"rubberband=pitch={ratio}:formant=shifted:pitchq=quality:transients=smooth", "-ar", str(sr), b], check=True)
+    y, _ = sf.read(b, dtype="float32"); return y
 
 _tts = {}
 def get_tts(name):
@@ -55,11 +75,17 @@ def pieces(text, P):
         res.append((seg + (p0 if p0 else ""), pause))
     return res
 
-def speak(who, text, P):
+def speak(who, text, P, tone="norm"):
     if P["phon"]:
         for a, b in PHON: text = re.sub(a, b, text)
-    tts = get_tts(VOICES[who]); chunks = []; sr = 22050
+    use_k = USE_KOKORO and who in KOKORO; chunks = []; sr = 24000 if use_k else 22050
+    tts = None if use_k else get_tts(VOICES[who])
     for seg, pause in pieces(text, P):
+        if use_k:
+            x, sr = get_kokoro().create(seg, voice=KOKORO[who], speed=(P["kspeed_mock"] if tone == "mock" else P["kspeed"]), lang="pt-br"); x = np.asarray(x, np.float32)
+            idx = np.where(np.abs(x) > 0.004)[0]
+            if len(idx): x = x[max(0, idx[0]-int(.06*sr)): idx[-1]+int(.09*sr)]
+            chunks.append(x); chunks.append(np.zeros(int(pause*sr), np.float32)); continue
         a = tts.generate(seg, sid=0, speed=(1.0 if who == "x" else P["speed"])); x = np.asarray(a.samples, np.float32); sr = a.sample_rate
         idx = np.where(np.abs(x) > 0.004)[0]
         if len(idx): x = x[max(0, idx[0]-int(.06*sr)): idx[-1]+int(.09*sr)]
@@ -67,7 +93,10 @@ def speak(who, text, P):
     if chunks and not np.any(chunks[-1]): chunks = chunks[:-1]
     return np.concatenate(chunks), sr
 
-def shape(x, sr, tone, P):
+def shape(x, sr, tone, P, who="u"):
+    if USE_KOKORO and who in KOKORO:
+        r = P["kpitch"].get(who + "_mock") if tone == "mock" and (who + "_mock") in P["kpitch"] else P["kpitch"][who]
+        return rubber(x, sr, r) if abs(r - 1.0) > 0.01 else x
     if tone == "norm": return x
     import parselmouth
     from parselmouth.praat import call
@@ -84,7 +113,7 @@ def shape(x, sr, tone, P):
     return y / (np.abs(y).max() + 1e-9) * 0.9
 
 def finish(raw_path, out_path, who, P):
-    body = "equalizer=f=95:t=q:w=1.0:g=3.5," if who == "c" else ""
+    body = "equalizer=f=100:t=q:w=1.0:g=1.5," if (who == "c" and not USE_KOKORO) else ""
     echo = "aecho=0.8:0.55:35:0.10," if P["echo"] else ""
     af = ("highpass=f=60," + body + "equalizer=f=140:t=h:w=120:g=2.5,equalizer=f=3500:t=q:w=1.2:g=1.5,"
           f"acompressor=threshold=-20dB:ratio={P['comp_ratio']}:attack=5:release=80:makeup=2," + echo + "alimiter=limit=0.95")
@@ -98,7 +127,7 @@ def finish(raw_path, out_path, who, P):
 def synth_line(who, text, tone, P=PARAMS, workdir=None):
     """Fala completa já processada (float32, SR=44100)."""
     workdir = workdir or tempfile.mkdtemp()
-    x, sr = speak(who, text, P); x = shape(x, sr, tone, P)
+    x, sr = speak(who, text, P, tone); x = shape(x, sr, tone, P, who)
     raw, out = os.path.join(workdir, "raw.wav"), os.path.join(workdir, "out.wav")
     sf.write(raw, x, sr); finish(raw, out, who, P)
     a, _ = sf.read(out, dtype="float32"); return a

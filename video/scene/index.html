@@ -128,9 +128,6 @@ function px(g, col, x, y, w = 1, h = 1) { g.fillStyle = col; g.fillRect(x, y, w,
 function drawUserFace(e, talk, blink) {
   const g = UF.g, r = rng(7);
   px(g, SKIN, 0, 0, 16, 16);
-  // cabelo (franja irregular)
-  for (let x = 0; x < 16; x++) { const hh = [4, 4, 3, 4, 3, 3, 2, 3, 4, 3, 3, 2, 3, 4, 4, 4][x]; for (let y = 0; y < hh; y++) px(g, (x + y) % 3 ? HAIR : HAIR2, x, y); }
-  for (let y = 4; y < 7; y++) { px(g, HAIR, 0, y); px(g, HAIR, 15, y); }
   // sobrancelhas
   const brow = { flat: [[5, 5, 5, 5], [5, 5, 5, 5]], worry: [[6, 5, 5, 5], [5, 5, 5, 6]], angry: [[5, 5, 6, 6], [6, 6, 5, 5]], high: [[4, 4, 4, 4], [4, 4, 4, 4]], sly: [[5, 5, 5, 5], [4, 4, 4, 4]] }[e.brow] || [[5, 5, 5, 5], [5, 5, 5, 5]];
   brow[0].forEach((y, i) => px(g, BROW, 2 + i, y)); brow[1].forEach((y, i) => px(g, BROW, 10 + i, y));
@@ -181,23 +178,27 @@ box(0.88, 0.24, 1.42, mat(HOOD_D, { vari: 0.16, seed: 52 }), 0, 0.12, 0, user);
 box(0.07, 0.6, 0.07, mat(0xf0f0f0, { plain: true }), 0.45, 1.0, -0.13, user); box(0.07, 0.6, 0.07, mat(0xf0f0f0, { plain: true }), 0.45, 1.0, 0.13, user);
 box(0.3, 0.95, 0.95, mat(HOOD_D, { vari: 0.16, seed: 53 }), -0.22, 1.3, 0, user, { cast: false });
 U.head = new THREE.Group(); U.head.position.set(0.05, 2.0, 0); user.add(U.head);
-const hairM = mat(0x17171c, { vari: 0.45, seed: 61 }), skinM = mat(0xf3d3bd, { vari: 0.05, seed: 62 });
-const sideM = mat(0xf3d3bd, { vari: 0.05, seed: 63, paint: (g) => { g.fillStyle = "#17171c"; for (let y = 0; y < 5; y++) g.fillRect(0, y, 16, 1); g.fillRect(0, 5, 6, 1); g.fillRect(0, 6, 5, 2); g.fillStyle = "#e0b095"; g.fillRect(8, 8, 3, 3); } });
+const hairM = new THREE.MeshStandardMaterial({ color: 0x08080a, emissive: 0x17171c, emissiveIntensity: 1, roughness: 1 }), skinM = mat(0xf3d3bd, { vari: 0.05, seed: 62 });
+const sideM = mat(0xf3d3bd, { seed: 63, paint: (g) => { g.fillStyle = "#e0b095"; g.fillRect(8, 8, 3, 3); } });
 const faceM = new THREE.MeshStandardMaterial({ map: UF.t, roughness: 0.9 });
 const headMats = [faceM, hairM, hairM, skinM, sideM, sideM];  // +x rosto, -x nuca, +y topo, -y, ±z lados
 box(1.1, 1.1, 1.1, headMats, 0, 0, 0, U.head);
-box(1.18, 0.34, 1.18, hairM, -0.02, 0.62, 0, U.head);
-box(1.17, 0.5, 0.35, hairM, -0.3, 0.1, 0.0, U.head, { cast: false });
+box(1.18, 0.40, 1.18, hairM, -0.02, 0.60, 0, U.head);                    // casquete
+box(0.12, 0.62, 1.18, hairM, -0.58, 0.14, 0, U.head, { cast: false });   // nuca
+box(0.75, 0.50, 1.16, hairM, -0.20, 0.25, 0, U.head, { cast: false });   // laterais
+{ const pw = 1.1 / 16, hs = [4, 4, 3, 4, 3, 3, 2, 3, 4, 3, 3, 2, 3, 4, 4, 4];   // franja irregular
+  hs.forEach((hh, x) => box(0.05, hh * pw, pw, hairM, 0.58, 0.55 - hh * pw / 2, 0.55 - (x + 0.5) * pw, U.head, { cast: false }));
+  [0, 15].forEach(x => box(0.05, 3 * pw, pw, hairM, 0.58, 0.55 - 5.5 * pw, 0.55 - (x + 0.5) * pw, U.head, { cast: false })); }
 // braços
 U.arms = [-1, 1].map(s => {
-  const g = new THREE.Group(); g.position.set(0, 1.28, s * 0.88); user.add(g);
+  const g = new THREE.Group(); g.position.set(0, 1.28, s * 0.92); user.add(g);
   const up = box(0.36, 1.0, 0.36, mat(HOOD, { vari: 0.16, seed: 70 + s }), 0.17, -0.45, 0, g); up.rotation.z = 0.45;
   const fo = box(1.0, 0.32, 0.32, mat(HOOD, { vari: 0.16, seed: 72 + s }), 0.68, -0.92, 0, g);
-  box(0.3, 0.28, 0.32, skinM, 1.24, -0.94, 0, g); g.userData.fo = fo; g.userData.base = g.position.y; return g;
+  box(0.3, 0.26, 0.28, skinM, 0.58, -0.02, 0, fo); g.userData.fo = fo; g.userData.base = g.position.y; return g;
 });
 [-1, 1].forEach(s => {
-  box(1.35, 0.48, 0.52, mat(JEANS, { vari: 0.14, seed: 80 }), 0.7, -0.15, s * 0.45, user);
-  box(0.52, 1.2, 0.52, mat(JEANS, { vari: 0.14, seed: 81 }), 1.28, -0.88, s * 0.45, user);
+  box(1.35, 0.48, 0.50, mat(JEANS), 0.7, -0.15, s * 0.45, user);
+  box(0.50, 1.2, 0.48, mat(JEANS), 1.28, -0.88, s * 0.45, user);
   box(0.85, 0.3, 0.54, mat(0xf0f0f0, { vari: 0.08, seed: 82 }), 1.5, -1.46, s * 0.45, user);
 });
 const lapGroup = new THREE.Group(); lapGroup.position.set(0.95, 0.2, 0); user.add(lapGroup);

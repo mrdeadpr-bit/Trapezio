@@ -32,6 +32,8 @@ function serve() {
   const fps = await page.evaluate("window.TIMELINE.fps");
   for (let n = a; n < b; n++) {
     const i = list ? list[n] : n;
+    const fp = path.join(out, `f${String(i).padStart(5, "0")}.jpg`);
+    if (process.env.RESUME && fs.existsSync(fp)) { const b = fs.readFileSync(fp); if (b.length > 20000 && b[b.length - 2] === 0xff && b[b.length - 1] === 0xd9) continue; }   // retoma sem refazer quadros íntegros
     await page.evaluate(t => window.setT(t), i / fps);
     await page.screenshot({ path: path.join(out, `f${String(i).padStart(5, "0")}.jpg`), type: "jpeg", quality: 93 });
   }

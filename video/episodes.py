@@ -48,7 +48,7 @@ def L(who, spoken, cap, shot, uexp="tired", mexp="neutral", **kw):
 
 # ---- Série "No divã": ele deitado, o Claude de terapeuta ----
 CHAT = [
- L("u", "Doutor Claude... meu chat tem quatro mil mensagens.", "Doutor Claude...\nmeu chat tem 4.000 mensagens.", dict(name="top")),
+ L("u", "Claude... meu chat tem quatro mil mensagens.", "Claude...\nmeu chat tem 4.000 mensagens.", dict(name="top")),
  L("c", "Eu sei. Eu esqueci o começo na mensagem seiscentos.", "Eu sei. Eu esqueci o começo\nna mensagem 600.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Como assim esqueceu?! Eu expliquei o projeto inteiro!", "Como assim esqueceu?!\nEu expliquei o projeto inteiro!", dict(name="cuUser", a=0.3), "panic", "deadpan"),
  L("c", "Contexto tem limite. Chat gigante vira sopa.", "Contexto tem limite.\nChat gigante vira sopa.", dict(name="cuMascot", a=0.2), "panic", "smug"),
@@ -66,7 +66,7 @@ CHAT = [
 ]
 
 MADRUGADA = [
- L("u", "Doutor... eram onze da noite. Eu só ia trocar a cor de um botão do meu grupo de achadinhos.", "Eram 11 da noite. Eu só ia trocar\na cor de um botão do meu\ngrupo de achadinhos.", dict(name="cuUser", a=0.3), "tired"),
+ L("u", "Claude... eram onze da noite. Eu só ia trocar a cor de um botão do meu grupo de achadinhos.", "Claude... eram 11 da noite. Eu só\nia trocar a cor de um botão do\nmeu grupo de achadinhos.", dict(name="cuUser", a=0.3), "tired"),
  L("c", "São quatro da manhã.", "São 4 da manhã.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Eu sei! E agora o limite de uso acabou!", "Eu sei! E agora o\nlimite de uso acabou!", dict(name="cuUser", a=-0.3), "panic", "deadpan"),
  L("c", "Você colou um log de duas mil linhas. Três vezes. Cola só o erro. E manda tudo numa mensagem só.", "Você colou um log de 2.000 linhas.\nTrês vezes. Cola só o erro.", dict(name="screen", a=-0.4), "panic", "neutral",
@@ -84,7 +84,7 @@ MADRUGADA = [
 ]
 
 VPS = [
- L("c", "Vamos às contas. V P S, pago. Claude, pago. Chat G P T, pago. Grupo de achadinhos automático... retorno, zero.", "VPS: pago. Claude: pago. ChatGPT: pago.\nGrupo de achadinhos: retorno zero.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
+ L("c", "Vamos às contas. V P S, pago. Claude, pago. Chat G P T, pago. Grupo de achadinhos automático... retorno, zero.", "VPS: pago. Claude: pago.\nChatGPT: pago. Grupo de\nachadinhos: retorno zero.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Não fala o número em voz alta.", "Não fala o número\nem voz alta.", dict(name="cuUser", a=0.3), "defeat", "deadpan"),
  L("c", "Zero. Zero reais.", "Zero. Zero reais.", dict(name="cuMascot", a=0.4), "defeat", "smug"),
  L("u", "Mas o grupo vai bombar! Eu sinto!", "Mas o grupo vai bombar!\nEu sinto!", dict(name="cuUser", a=-0.3), "panic", "smug"),
@@ -103,7 +103,7 @@ VPS = [
 ]
 
 COWORK = [
- L("u", "Doutor... eu pedi pro Cowork montar meu grupo de achadinhos. Ele organizou minha pasta de Downloads.", "Pedi pro Cowork montar meu grupo\nde achadinhos. Ele organizou os Downloads.", dict(name="top")),
+ L("u", "Claude... eu pedi pro Cowork montar meu grupo de achadinhos. Ele organizou minha pasta de Downloads.", "Claude... pedi pro Cowork montar meu\ngrupo de achadinhos. Ele organizou\nos Downloads.", dict(name="top")),
  L("c", "Ficou uma pasta linda.", "Ficou uma pasta linda.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Eu queria vendas, não pasta!", "Eu queria vendas,\nnão pasta!", dict(name="cuUser", a=0.3), "panic", "deadpan"),
  L("c", "Cowork organiza arquivo, preenche planilha e pesquisa na web. Vender não vem no pacote.", "Cowork organiza arquivo, preenche planilha\ne pesquisa na web. Vender não vem no pacote.", dict(name="cuMascot", a=0.2), "panic", "smug"),
@@ -122,7 +122,7 @@ COWORK = [
 ]
 
 BAN = [
- L("u", "Doutor, o WhatsApp baniu o número do meu grupo de achadinhos!", "O WhatsApp baniu o número\ndo meu grupo de achadinhos!", dict(name="cuUser", a=0.3), "panic"),
+ L("u", "Claude, o WhatsApp baniu o número do meu grupo de achadinhos!", "Claude, o WhatsApp baniu o número\ndo meu grupo de achadinhos!", dict(name="cuUser", a=0.3), "panic"),
  L("c", "Quantas ofertas você mandou?", "Quantas ofertas\nvocê mandou?", dict(name="cuMascot", a=0.3), "panic", "deadpan"),
  L("u", "Trezentas. Em dois minutos.", "Trezentas.\nEm dois minutos.", dict(name="cuUser", a=-0.3), "worry", "deadpan"),
  L("c", "Isso não é divulgação. É um ataque.", "Isso não é divulgação.\nÉ um ataque.", dict(name="cuMascot", a=0.3), "worry", "smug"),
@@ -141,7 +141,7 @@ BAN = [
 ]
 
 LINK = [
- L("u", "Doutor, mandei quinhentos links no grupo de achadinhos e ninguém comprou.", "Mandei 500 links no grupo\nde achadinhos e ninguém comprou.", dict(name="cuUser", a=0.3), "tired"),
+ L("u", "Claude, mandei quinhentos links no grupo de achadinhos e ninguém comprou.", "Claude, mandei 500 links no grupo\nde achadinhos e ninguém comprou.", dict(name="cuUser", a=0.3), "tired"),
  L("c", "O link estava certo?", "O link estava certo?", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Claro que estava.", "Claro que estava.", dict(name="cuUser", a=-0.3), "angry", "deadpan"),
  L("c", "Você colou o link do produto. Não o de afiliado.", "Você colou o link do produto.\nNão o de afiliado.", dict(name="cuMascot", a=0.3), "angry", "smug"),
@@ -161,7 +161,7 @@ LINK = [
 ]
 
 PROMPT = [
- L("u", "Doutor... eu escrevi um prompt de três mil palavras pro meu grupo de achadinhos.", "Escrevi um prompt de 3.000 palavras\npro meu grupo de achadinhos.", dict(name="top")),
+ L("u", "Claude... eu escrevi um prompt de três mil palavras pro meu grupo de achadinhos.", "Claude... escrevi um prompt de 3.000\npalavras pro meu grupo de achadinhos.", dict(name="top")),
  L("c", "Eu li tudo. Esqueci na metade.", "Eu li tudo.\nEsqueci na metade.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Como assim esqueceu?! Eu me dediquei!", "Como assim esqueceu?!\nEu me dediquei!", dict(name="cuUser", a=0.3), "panic", "deadpan"),
  L("c", "Prompt gigante é discurso de casamento. Ninguém lembra do fim.", "Prompt gigante é discurso de casamento.\nNinguém lembra do fim.", dict(name="cuMascot", a=0.2), "panic", "smug"),
@@ -182,7 +182,7 @@ PROMPT = [
 ]
 
 SOL = [
- L("u", "Doutor... eu não vejo o sol há quatro dias.", "Eu não vejo o sol\nhá 4 dias.", dict(name="top")),
+ L("u", "Claude... eu não vejo o sol há quatro dias.", "Claude... eu não vejo o sol\nhá 4 dias.", dict(name="top")),
  L("c", "Abre a janela.", "Abre a janela.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Não posso. O código do grupo de achadinhos está rodando.", "Não posso. O código do grupo\nde achadinhos está rodando.", dict(name="cuUser", a=0.3), "worry", "deadpan"),
  L("c", "Ele roda sozinho.", "Ele roda sozinho.", dict(name="cuMascot", a=0.3), "worry", "smug"),

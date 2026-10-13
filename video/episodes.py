@@ -103,7 +103,7 @@ VPS = [
 ]
 
 COWORK = [
- L("u", "Claude... eu pedi pro Cowork montar meu grupo de achadinhos. Ele organizou minha pasta de Downloads.", "Claude... pedi pro Cowork montar meu\ngrupo de achadinhos. Ele organizou\nos Downloads.", dict(name="top")),
+ L("u", "Claude... eu pedi pro Cowork montar meu grupo de achadinhos. Ele organizou minha pasta de Downloads.", "Claude... pedi pro Cowork montar\nmeu grupo de achadinhos. Ele\norganizou os Downloads.", dict(name="top")),
  L("c", "Ficou uma pasta linda.", "Ficou uma pasta linda.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Eu queria vendas, não pasta!", "Eu queria vendas,\nnão pasta!", dict(name="cuUser", a=0.3), "panic", "deadpan"),
  L("c", "Cowork organiza arquivo, preenche planilha e pesquisa na web. Vender não vem no pacote.", "Cowork organiza arquivo, preenche planilha\ne pesquisa na web. Vender não vem no pacote.", dict(name="cuMascot", a=0.2), "panic", "smug"),
@@ -113,7 +113,7 @@ COWORK = [
                footer=[[0.0, "? for shortcuts"]],
                events=[dict(f=0.2, kind="line", text="● montando o fluxo…", color="#e8a07c"),
                        dict(f=0.4, kind="line", text="✓ código pronto", color="#7ee2a8"),
-                       dict(f=0.62, kind="banner", text="regra do WhatsApp: fora do meu alcance", color="#f5a623")])),
+                       dict(f=0.62, kind="banner", text="fora do meu alcance", color="#f5a623")])),
  L("u", "Então tudo que eu queria...", "Então tudo\nque eu queria...", dict(name="cuUser", a=0.3), "defeat", "neutral"),
  L("c", "Você queria um grupo. Agora você tem um hobby caro.", "Você queria um grupo.\nAgora tem um hobby caro.", dict(name="cuMascot", a=0.3), "defeat", "smug"),
  L("u", "O Chat G P T disse que ia ser fácil.", "O ChatGPT disse\nque ia ser fácil.", dict(name="cuUser", a=-0.3), "sly"),
@@ -161,7 +161,7 @@ LINK = [
 ]
 
 PROMPT = [
- L("u", "Claude... eu escrevi um prompt de três mil palavras pro meu grupo de achadinhos.", "Claude... escrevi um prompt de 3.000\npalavras pro meu grupo de achadinhos.", dict(name="top")),
+ L("u", "Claude... eu escrevi um prompt de três mil palavras pro meu grupo de achadinhos.", "Claude... escrevi um prompt\nde 3.000 palavras pro meu\ngrupo de achadinhos.", dict(name="top")),
  L("c", "Eu li tudo. Esqueci na metade.", "Eu li tudo.\nEsqueci na metade.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Como assim esqueceu?! Eu me dediquei!", "Como assim esqueceu?!\nEu me dediquei!", dict(name="cuUser", a=0.3), "panic", "deadpan"),
  L("c", "Prompt gigante é discurso de casamento. Ninguém lembra do fim.", "Prompt gigante é discurso de casamento.\nNinguém lembra do fim.", dict(name="cuMascot", a=0.2), "panic", "smug"),
@@ -173,7 +173,7 @@ PROMPT = [
                        dict(f=0.4, kind="line", text="# CLAUDE.md", color="#c4a3ff"),
                        dict(f=0.5, kind="line", text="- grupo de achadinhos", color="#ffffff"),
                        dict(f=0.58, kind="line", text="- regras curtas", color="#ffffff"),
-                       dict(f=0.68, kind="banner", text="regras fixas no CLAUDE.md", color="#7c4dff")])),
+                       dict(f=0.68, kind="banner", text="regras no CLAUDE.md", color="#7c4dff")])),
  L("u", "O Chat G P T aceita prompt gigante e responde com um texto gigante.", "O ChatGPT aceita prompt gigante\ne responde com texto gigante.", dict(name="cuUser", a=0.3), "sly"),
  L("c", "Vocês combinam. Dois monólogos.", "Vocês combinam.\nDois monólogos.", dict(name="cuMascot", a=0.4), "sly", "smug"),
  L("u", "Eu preciso de menos palavras.", "Eu preciso de\nmenos palavras.", dict(name="cuUser", a=-0.3), "defeat", "smug"),

@@ -8,7 +8,7 @@
   #wrap { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
   #cap { position: absolute; left: 80px; right: 80px; top: 600px; text-align: center; color: #fff;
          font: 600 56px/1.2 "Inter", "DejaVu Sans", sans-serif; letter-spacing: -.005em;
-         text-shadow: 0 2px 16px rgba(0,0,0,.55), 0 0 3px rgba(0,0,0,.45); white-space: pre-line; }
+         text-shadow: 0 2px 6px rgba(0,0,0,.7), 0 0 22px rgba(0,0,0,.55); white-space: pre-line; }
 </style>
 <script type="importmap">{ "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }</script>
 </head>
@@ -30,12 +30,11 @@ const TL = window.TIMELINE;
 const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
 renderer.setPixelRatio(1); renderer.setSize(W, H);
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+renderer.toneMapping = THREE.NoToneMapping;
 document.getElementById("wrap").prepend(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x4a5a8c);
-scene.fog = new THREE.Fog(0x4a5a8c, 18, 50);
 const camera = new THREE.PerspectiveCamera(36, W / H, 0.1, 100);
 
 // ---------- texturas de pixel (estilo bloco) ----------
@@ -54,10 +53,10 @@ function pixTex(base, vari, { w = 16, h = 16, seed = 1, rep = [1, 1], paint = nu
   t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep[0], rep[1]); return t;
 }
 const cache = {};
-function mat(hex, { vari = 0.14, rough = 0.9, rep = [1, 1], seed = 3, emissive = 0, plain = false, paint = null } = {}) {
-  const key = [hex, vari, rough, rep, seed, emissive, plain].join("|"); if (!paint && cache[key]) return cache[key];
-  const m = new THREE.MeshStandardMaterial({ map: plain ? null : pixTex(hex, vari, { rep, seed, paint }), color: plain ? hex : 0xffffff, roughness: rough, metalness: 0 });
-  if (emissive) { m.emissive = new THREE.Color(hex); m.emissiveIntensity = emissive; if (!plain) m.emissiveMap = m.map; }
+function mat(hex, { vari: _v = 0, rough = 0.95, rep = [1, 1], seed = 3, emissive = 0, plain = false, paint = null } = {}) {
+  const vari = 0; const key = [hex, vari, rough, rep, seed, emissive, plain].join("|"); if (!paint && cache[key]) return cache[key];
+  const m = new THREE.MeshStandardMaterial({ map: (plain || !paint) ? null : pixTex(hex, vari, { rep, seed, paint }), color: (plain || !paint) ? hex : 0xffffff, roughness: rough, metalness: 0 });
+  if (emissive) { m.emissive = new THREE.Color(hex); m.emissiveIntensity = emissive; if (m.map) m.emissiveMap = m.map; }
   if (!paint) cache[key] = m; return m;
 }
 function box(w, h, d, material, x, y, z, parent = scene, { cast = true, receive = true } = {}) {
@@ -73,7 +72,7 @@ box(44, 15, 0.4, big(0x5c70ad, 44, 15, 0.4, { vari: 0.1, seed: 9 }), 0, 7.5, -4.
 box(0.4, 15, 26, big(0x566aa4, 26, 15, 0.4, { vari: 0.1, seed: 10 }), -11, 7.5, -2);
 box(44, 0.3, 0.3, mat(0xe7e3dc, { vari: 0.05 }), 0, 0.15, -4.4, scene, { cast: false });
 // janela (luz forte)
-const winGlow = new THREE.MeshBasicMaterial({ color: 0xffffff }); winGlow.color.setRGB(2.4, 2.5, 2.8);
+const winGlow = new THREE.MeshBasicMaterial({ color: 0xeaf2ff });
 box(5.4, 5.2, 0.12, winGlow, 5.0, 5.0, -4.46, scene, { cast: false, receive: false });
 const frameM = mat(0xe9ebf0, { vari: 0.05 });
 [[5, 2.35, 5.9, 0.3], [5, 7.65, 5.9, 0.3]].forEach(a => box(a[2], a[3], 0.3, frameM, a[0], a[1], -4.35));
@@ -100,34 +99,35 @@ box(1.8, 0.07, 0.05, mat(0x241610), 3.2, 1.2, 0.97, scene, { cast: false });
 box(0.3, 0.1, 0.1, mat(0xd3b57d), 3.2, 1.2, 1.0, scene, { cast: false });
 box(0.6, 0.15, 0.6, mat(0x15151c, { plain: true }), 4.1, 2.45, -0.8);
 box(0.16, 1.3, 0.16, mat(0x15151c, { plain: true }), 4.1, 3.1, -0.8);
-const shade = mat(0xf2e6cd, { emissive: 0.8, vari: 0.06 }); box(1.0, 0.8, 1.0, shade, 4.1, 4.0, -0.8);
-const lamp = new THREE.PointLight(0xffc27a, 1.1, 14, 1.5); lamp.position.set(4.1, 4.0, -0.4); lamp.castShadow = false; scene.add(lamp);
+const shade = mat(0xf6ecd4, { emissive: 0.55 }); box(1.0, 0.8, 1.0, shade, 4.1, 4.0, -0.8);
+
 function canvasTex(w, h, draw) { const c = document.createElement("canvas"); c.width = w; c.height = h; draw(c.getContext("2d"), w, h);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
 const clk = canvasTex(256, 128, (c, w, h) => { c.fillStyle = "#0b0707"; c.fillRect(0, 0, w, h); c.fillStyle = "#ff4a24";
-  c.font = "bold 86px 'DejaVu Sans Mono', monospace"; c.textAlign = "center"; c.textBaseline = "middle"; c.shadowColor = "#ff4a24"; c.shadowBlur = 16; c.fillText("08:12", w / 2, h / 2 + 4); });
+  c.font = "bold 86px 'DejaVu Sans Mono', monospace"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("08:12", w / 2, h / 2 + 4); });
 box(1.0, 0.5, 0.45, mat(0x15151a, { plain: true }), 2.5, 2.62, 0.4);
-const clkMat = new THREE.MeshBasicMaterial({ map: clk }); clkMat.color.setRGB(1.6, 1.6, 1.6);
+const clkMat = new THREE.MeshBasicMaterial({ map: clk }); 
 const clockFace = new THREE.Mesh(new THREE.PlaneGeometry(0.88, 0.38), clkMat); clockFace.position.set(2.5, 2.62, 0.63); scene.add(clockFace);
 
 // ---------- luz ----------
-scene.add(new THREE.HemisphereLight(0xaebcff, 0x6d5a55, 0.9));
-const sun = new THREE.DirectionalLight(0xfff0dc, 2.4);
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb8aaa0, 1.25));
+const sun = new THREE.DirectionalLight(0xffffff, 1.5);
 sun.position.set(5, 11, 10); sun.target.position.set(0, 1, 0); scene.add(sun, sun.target);
 sun.castShadow = true; sun.shadow.mapSize.set(+(new URLSearchParams(location.search).get('sm') ?? 2048), +(new URLSearchParams(location.search).get('sm') ?? 2048)); sun.shadow.radius = 5; sun.shadow.bias = -0.0003;
 Object.assign(sun.shadow.camera, { left: -13, right: 13, top: 11, bottom: -8, near: 1, far: 45 }); sun.shadow.camera.updateProjectionMatrix();
-const rim = new THREE.DirectionalLight(0xc8d2ff, 0.45); rim.position.set(-7, 5, -6); scene.add(rim);
-const front = new THREE.PointLight(0xfff1e3, 2.6, 16, 1.3); front.position.set(1.0, 5.0, 3.6); scene.add(front);
+
+const front = new THREE.DirectionalLight(0xffffff, 0.9); front.position.set(2, 6, 12); scene.add(front);
+const frontM = new THREE.DirectionalLight(0xffffff, 1.1); frontM.position.set(-6, 5, 8); scene.add(frontM);
 
 // ---------- rostos (textura de pixel dinâmica) ----------
-const SKIN = "#f3d3bd", SKIN_S = "#e6b99f", HAIR = "#17171c", HAIR2 = "#222229", BROW = "#2b1d18";
+const MASC = "#e8744c", SKIN = "#f3d3bd", SKIN_S = "#e6b99f", HAIR = "#17171c", HAIR2 = "#222229", BROW = "#2b1d18";
 function faceCanvas() { const c = document.createElement("canvas"); c.width = 16; c.height = 16;
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; return { c, g: c.getContext("2d"), t }; }
 const UF = faceCanvas();
 function px(g, col, x, y, w = 1, h = 1) { g.fillStyle = col; g.fillRect(x, y, w, h); }
 function drawUserFace(e, talk, blink) {
   const g = UF.g, r = rng(7);
-  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) px(g, `rgb(${243 + (r() - .5) * 8 | 0},${211 + (r() - .5) * 8 | 0},${189 + (r() - .5) * 8 | 0})`, x, y);
+  px(g, SKIN, 0, 0, 16, 16);
   // cabelo (franja irregular)
   for (let x = 0; x < 16; x++) { const hh = [4, 4, 3, 4, 3, 3, 2, 3, 4, 3, 3, 2, 3, 4, 4, 4][x]; for (let y = 0; y < hh; y++) px(g, (x + y) % 3 ? HAIR : HAIR2, x, y); }
   for (let y = 4; y < 7; y++) { px(g, HAIR, 0, y); px(g, HAIR, 15, y); }
@@ -162,13 +162,13 @@ const MF = (() => { const c = document.createElement("canvas"); c.width = 24; c.
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; return { c, g: c.getContext("2d"), t }; })();
 function drawMascotFace(m, blink) {
   const g = MF.g, r = rng(13);
-  for (let y = 0; y < 16; y++) for (let x = 0; x < 24; x++) { const k = 1 + (r() - .5) * 0.10; px(g, `rgb(${240 * k | 0},${138 * k | 0},${80 * k | 0})`, x, y); }
+  px(g, MASC, 0, 0, 24, 16);
   const h = blink ? 1 : (m.big ? 5 : 4), y0 = blink ? 7 : (m.big ? 4 : 5);
   [4, 18].forEach(x0 => { px(g, "#17101a", x0, y0, 2, h);
-    if (m.lid && !blink) { px(g, "#f08a50", x0 - 1, y0 - 1, 4, m.lid); }              // pálpebra (cara de tédio)
+    if (m.lid && !blink) { px(g, MASC, x0 - 1, y0 - 1, 4, m.lid); }              // pálpebra (cara de tédio)
   });
-  if (m.happy) { [4, 18].forEach(x0 => { px(g, "#f08a50", x0 - 1, 4, 4, 5); px(g, "#17101a", x0, 6, 2, 1); px(g, "#17101a", x0 - 1, 7, 1, 1); px(g, "#17101a", x0 + 2, 7, 1, 1); }); }
-  px(g, "#d9733f", 10, 11, 4, 1); // focinho discreto
+  if (m.happy) { [4, 18].forEach(x0 => { px(g, MASC, x0 - 1, 4, 4, 5); px(g, "#17101a", x0, 6, 2, 1); px(g, "#17101a", x0 - 1, 7, 1, 1); px(g, "#17101a", x0 + 2, 7, 1, 1); }); }
+  px(g, "#c9603a", 10, 11, 4, 1); // focinho discreto
   MF.t.needsUpdate = true;
 }
 
@@ -212,10 +212,10 @@ box(0.06, 1.05, 1.4, [alu, scrMat, alu, alu, alu, alu], 0, 0.52, 0, hinge);
 // ---------- Claude (mascote) ----------
 const mascot = new THREE.Group(); mascot.position.set(3.2, 2.38, -0.15); mascot.rotation.y = Math.PI + 0.42; scene.add(mascot);
 const M = {}; M.body = new THREE.Group(); mascot.add(M.body);
-const orangeSide = mat(0xf08a50, { vari: 0.1, seed: 90, emissive: 0.22 }), orangeTop = mat(0xf59a60, { vari: 0.1, seed: 91, emissive: 0.22 }), orangeBot = mat(0xd9733f, { vari: 0.1, seed: 92, emissive: 0.1 });
-M.faceMat = new THREE.MeshStandardMaterial({ map: MF.t, roughness: 0.9, emissive: new THREE.Color(0xffffff), emissiveMap: MF.t, emissiveIntensity: 0.3 });
+const orangeSide = mat(0xe8744c), orangeTop = mat(0xe8744c), orangeBot = mat(0xe8744c);
+M.faceMat = new THREE.MeshStandardMaterial({ map: MF.t, roughness: 0.9, emissive: new THREE.Color(0xffffff), emissiveMap: MF.t, emissiveIntensity: 0.0 });
 box(1.45, 1.35, 2.1, [M.faceMat, orangeSide, orangeTop, orangeBot, orangeSide, orangeSide], 0, 1.35, 0, M.body);
-M.legs = [[-0.5, -0.7], [-0.5, 0.7], [0.45, -0.7], [0.45, 0.7]].map(p => box(0.36, 0.7, 0.36, mat(0xf29a6c, { vari: 0.1, seed: 95 + p[0] * 10 }), p[0], 0.35, p[1], mascot));
+M.legs = [[-0.5, -0.7], [-0.5, 0.7], [0.45, -0.7], [0.45, 0.7]].map(p => box(0.36, 0.7, 0.36, mat(0xf08a60), p[0], 0.35, p[1], mascot));
 M.armR = box(0.3, 0.6, 0.3, orangeSide, 0.15, 1.25, 1.2, M.body); M.armL = box(0.3, 0.6, 0.3, orangeSide, 0.15, 1.25, -1.2, M.body);
 
 // ---------- terminal no notebook ----------
@@ -267,7 +267,6 @@ const composer = new EffectComposer(renderer, rt);
 composer.addPass(new RenderPass(scene, camera));
 const bokeh = new BokehPass(scene, camera, { focus: 10, aperture: 0.02, maxblur: 0.02 });
 composer.addPass(bokeh);
-const bloom = new UnrealBloomPass(new THREE.Vector2(W / 2, H / 2), 0.32, 0.7, 0.92); composer.addPass(bloom);
 const GradeShader = { uniforms: { tDiffuse: { value: null }, time: { value: 0 } },
   vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
   fragmentShader: `uniform sampler2D tDiffuse; uniform float time; varying vec2 vUv;
@@ -283,7 +282,6 @@ const GradeShader = { uniforms: { tDiffuse: { value: null }, time: { value: 0 } 
       col += (hash(vUv * 1080.0 + time) - 0.5) * 0.018;                                              // grão
       gl_FragColor = vec4(col, 1.0);
     }` };
-const grade = new ShaderPass(GradeShader); composer.addPass(grade);
 composer.addPass(new OutputPass());
 const fxaa = new ShaderPass(FXAAShader); fxaa.uniforms.resolution.value.set(1 / W, 1 / H); composer.addPass(fxaa);
 
@@ -359,8 +357,8 @@ window.setT = function (t) {
   user.children.forEach(c => c.visible = !screenShot || c === lapGroup);
   camera.position.copy(sh.pos); camera.fov = sh.fov; camera.updateProjectionMatrix(); camera.lookAt(sh.look);
   const dist = camera.position.distanceTo(sh.look);
-  bokeh.uniforms.focus.value = dist; bokeh.uniforms.aperture.value = sh.ap / Math.max(1, dist) * 0.5; bokeh.uniforms.maxblur.value = 0.018;
-  grade.uniforms.time.value = t * 7.0;
+  bokeh.uniforms.focus.value = dist; bokeh.uniforms.aperture.value = sh.ap / Math.max(1, dist) * 0.3; bokeh.uniforms.maxblur.value = 0.009;
+  
 
   capEl.style.top = screenShot ? "1330px" : "600px";
   capEl.textContent = (t >= ln.start - 0.04 && t < ln.end + 0.25) ? ln.cap : "";

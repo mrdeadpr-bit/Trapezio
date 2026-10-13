@@ -21,9 +21,9 @@ SCRIPT = [
       shot=dict(name="cuMascot", a=0.35), uexp="worry", mexp="deadpan"),
  dict(who="u", spoken="Eu sei?! E agora?!", cap="Eu sei?! E agora?!",
       shot=dict(name="cuUser", a=-0.3), uexp="panic", mexp="deadpan"),
- dict(who="c", spoken="Calma. Aperta Escape, duas vezes.", cap="Calma. Aperta Esc, Esc.",
+ dict(who="c", spoken="Calma. Aperta Esc, Esc.", cap="Calma. Aperta Esc, Esc.",
       shot=dict(name="cuMascot", a=0.5), uexp="panic", mexp="neutral"),
- dict(who="u", spoken="Escape, escape? E o que isso faz?", cap="Esc, Esc?\nE o que isso faz?",
+ dict(who="u", spoken="Esc, Esc? E o que isso faz?", cap="Esc, Esc?\nE o que isso faz?",
       shot=dict(name="two"), uexp="worry", mexp="neutral"),
  dict(who="c", spoken="Volta no tempo. O código e a conversa.", cap="Volta no tempo.\nO código e a conversa.",
       shot=dict(name="screen", a=0.35), uexp="worry", mexp="neutral",
@@ -130,8 +130,50 @@ for ln in SCRIPT:
                 d = (np.sin(2*np.pi*660*x)+np.sin(2*np.pi*990*x)*0.6)*np.exp(-x*7)*0.10
                 clicks[a_:a_+n_] += d[:N-a_].astype(np.float32)
 
-mix = voice*0.9 + amb*0.012 + clicks*0.55 + whoosh*0.07
-fd = int(0.8*SR); mix[-fd:] *= np.linspace(1, 0, fd)
+# ---------- música de fundo contínua (pad + baixo + teclas, sem bateria) ----------
+def synth_music(N):
+    bpm = 72; beat = 60/bpm; bar = 4*beat
+    chords = [(55.0, [220.0, 261.63, 329.63, 392.0]), (43.65, [174.61, 220.0, 261.63, 329.63]),
+              (65.41, [196.0, 261.63, 329.63, 392.0]), (49.0, [196.0, 246.94, 293.66, 392.0])]
+    L = np.zeros(N, np.float32); R = np.zeros(N, np.float32)
+    def add(buf, sig, t0):
+        a_ = max(0, int(t0*SR))
+        if a_ >= N: return
+        buf[a_:a_+len(sig)] += sig[:N-a_]
+    rg = np.random.default_rng(3)
+    nbars = int(N/SR/bar)+2
+    for b_ in range(nbars):
+        root, notes = chords[b_ % 4]; t0 = b_*bar
+        dur = bar+0.9; x = np.arange(int(dur*SR))/SR
+        env = np.minimum(1, x/0.9)*np.minimum(1, (dur-x)/0.9)
+        for i, f in enumerate(notes):
+            for d_, pan in ((0.997, 0.7), (1.003, 0.3)):
+                w = np.sin(2*np.pi*f*d_*x)+0.45*np.sin(4*np.pi*f*d_*x)+0.2*np.sin(6*np.pi*f*d_*x)
+                sig = (w*env*0.022).astype(np.float32)
+                add(L, sig*(1-pan)*1.4, t0); add(R, sig*pan*1.4, t0)
+        xb = np.arange(int((bar+0.3)*SR))/SR
+        eb = np.minimum(1, xb/0.04)*np.exp(-xb*0.35)*np.minimum(1, (bar+0.3-xb)/0.3)
+        bass = ((np.sin(2*np.pi*root*xb)+0.35*np.sin(4*np.pi*root*xb))*eb*0.20).astype(np.float32)
+        add(L, bass, t0); add(R, bass, t0)
+        pat = [0, 2, 1, 3, 2, 1, 3, 2]
+        for k, ix in enumerate(pat):
+            f = notes[ix]*2*(1 if k % 4 else 1); tk = t0 + k*beat/2 + rg.uniform(-0.012, 0.012)
+            xk = np.arange(int(1.1*SR))/SR
+            key = ((np.sin(2*np.pi*f*xk)+0.35*np.sin(4*np.pi*f*xk))*np.exp(-xk*3.2)*np.minimum(1, xk/0.004)*0.045).astype(np.float32)
+            pan = 0.35 + 0.3*(k % 2)
+            add(L, key*(1-pan)*1.6, tk); add(R, key*pan*1.6, tk)
+    return L, R
+mL, mR = synth_music(N)
+tmp = os.path.join(WORK, "music_raw.wav"); sf.write(tmp, np.stack([mL, mR], 1), SR)
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", tmp, "-af", "lowpass=f=3200,aecho=0.8:0.65:70|140:0.22|0.12", os.path.join(WORK, "music.wav")], check=True)
+mus, _ = sf.read(os.path.join(WORK, "music.wav"), dtype="float32"); mus = mus[:N]
+mus = mus / (np.sqrt(np.mean(mus**2)) + 1e-9) * 0.032
+fi, fo = int(0.8*SR), int(1.6*SR); mus[:fi] *= np.linspace(0, 1, fi)[:, None]; mus[-fo:] *= np.linspace(1, 0, fo)[:, None]
+env_v = np.convolve(np.abs(voice), np.ones(int(.2*SR))/int(.2*SR), mode="same")
+mus *= (1 - 0.30*np.clip(env_v*10, 0, 1))[:, None]
+mono = voice*0.9 + amb*0.010 + clicks*0.55 + whoosh*0.07
+mix = np.stack([mono, mono], 1) + mus
+fd = int(0.8*SR); mix[-fd:] *= np.linspace(1, 0, fd)[:, None]
 mix = np.clip(mix/np.abs(mix).max()*0.92, -1, 1)
 sf.write(os.path.join(WORK, "mix.wav"), mix, SR)
 

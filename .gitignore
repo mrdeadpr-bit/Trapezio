@@ -1,3 +1,4 @@
 video/work/
 video/models/
 video/node_modules/
+__pycache__/

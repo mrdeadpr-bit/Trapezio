@@ -122,12 +122,12 @@ COWORK = [
 ]
 
 BAN = [
- L("u", "Claude, o WhatsApp baniu o número do meu grupo de achadinhos!", "Claude, o WhatsApp baniu o número\ndo meu grupo de achadinhos!", dict(name="cuUser", a=0.3), "panic"),
+ L("u", "Claude, o WhatsApp baniu o número do meu grupo de achadinhos!", "Claude, o WhatsApp baniu\no número do meu grupo\nde achadinhos!", dict(name="cuUser", a=0.3), "panic"),
  L("c", "Quantas ofertas você mandou?", "Quantas ofertas\nvocê mandou?", dict(name="cuMascot", a=0.3), "panic", "deadpan"),
  L("u", "Trezentas. Em dois minutos.", "Trezentas.\nEm dois minutos.", dict(name="cuUser", a=-0.3), "worry", "deadpan"),
  L("c", "Isso não é divulgação. É um ataque.", "Isso não é divulgação.\nÉ um ataque.", dict(name="cuMascot", a=0.3), "worry", "smug"),
  L("u", "Mas era automático! Esse era o objetivo!", "Mas era automático!\nEsse era o objetivo!", dict(name="cuUser", a=0.3), "angry", "smug"),
- L("c", "Automação não oficial costuma terminar em ban. Existe a API oficial, com regras. Lê antes de apertar enter.", "Automação não oficial costuma dar ban.\nExiste a API oficial. Lê antes do enter.", dict(name="screen", a=-0.4), "angry", "neutral",
+ L("c", "Automação não oficial costuma terminar em ban. Existe a API oficial, com regras. Lê antes de apertar enter.", "Automação não oficial costuma\ndar ban. Existe a API oficial.\nLê antes do enter.", dict(name="screen", a=-0.4), "angry", "neutral",
    screen=dict(hist=[["> manda 300 ofertas no grupo", "#ffffff"]],
                footer=[[0.0, "esc to interrupt"]],
                events=[dict(f=0.25, kind="line", text="● enviando 300 mensagens…", color="#e8a07c"),
@@ -141,12 +141,12 @@ BAN = [
 ]
 
 LINK = [
- L("u", "Claude, mandei quinhentos links no grupo de achadinhos e ninguém comprou.", "Claude, mandei 500 links no grupo\nde achadinhos e ninguém comprou.", dict(name="cuUser", a=0.3), "tired"),
+ L("u", "Claude, mandei quinhentos links no grupo de achadinhos e ninguém comprou.", "Claude, mandei 500 links no\ngrupo de achadinhos e ninguém\ncomprou.", dict(name="cuUser", a=0.3), "tired"),
  L("c", "O link estava certo?", "O link estava certo?", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Claro que estava.", "Claro que estava.", dict(name="cuUser", a=-0.3), "angry", "deadpan"),
  L("c", "Você colou o link do produto. Não o de afiliado.", "Você colou o link do produto.\nNão o de afiliado.", dict(name="cuMascot", a=0.3), "angry", "smug"),
  L("u", "Quinhentos links. Zero comissão.", "500 links.\nZero comissão.", dict(name="cuUser", a=0.3), "panic", "smug"),
- L("c", "Pede pra eu validar os links antes de mandar. É um script de dez linhas.", "Pede pra eu validar os links antes.\nÉ um script de dez linhas.", dict(name="screen", a=0.4), "panic", "neutral",
+ L("c", "Pede pra eu validar os links antes de mandar. É um script de dez linhas.", "Pede pra eu validar\nos links antes. É um script\nde dez linhas.", dict(name="screen", a=0.4), "panic", "neutral",
    screen=dict(hist=[["> valida os 500 links", "#ffffff"]],
                footer=[[0.0, "? for shortcuts"]],
                events=[dict(f=0.25, kind="line", text="● verificando…", color="#e8a07c"),
@@ -164,7 +164,7 @@ PROMPT = [
  L("u", "Claude... eu escrevi um prompt de três mil palavras pro meu grupo de achadinhos.", "Claude... escrevi um prompt\nde 3.000 palavras pro meu\ngrupo de achadinhos.", dict(name="top")),
  L("c", "Eu li tudo. Esqueci na metade.", "Eu li tudo.\nEsqueci na metade.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Como assim esqueceu?! Eu me dediquei!", "Como assim esqueceu?!\nEu me dediquei!", dict(name="cuUser", a=0.3), "panic", "deadpan"),
- L("c", "Prompt gigante é discurso de casamento. Ninguém lembra do fim.", "Prompt gigante é discurso de casamento.\nNinguém lembra do fim.", dict(name="cuMascot", a=0.2), "panic", "smug"),
+ L("c", "Prompt gigante é discurso de casamento. Ninguém lembra do fim.", "Prompt gigante é discurso\nde casamento. Ninguém\nlembra do fim.", dict(name="cuMascot", a=0.2), "panic", "smug"),
  L("u", "E o que eu faço?", "E o que eu faço?", dict(name="cuUser", a=-0.3), "worry", "smug"),
  L("c", "Prompt curto. Regras fixas no CLAUDE ponto M D. O resto você pede na hora.", "Prompt curto. Regras fixas no\nCLAUDE.md. O resto, na hora.", dict(name="screen", a=-0.4), "worry", "neutral",
    screen=dict(hist=[["> (prompt de 3.000 palavras)", "#ffffff"]],
@@ -187,7 +187,7 @@ SOL = [
  L("u", "Não posso. O código do grupo de achadinhos está rodando.", "Não posso. O código do grupo\nde achadinhos está rodando.", dict(name="cuUser", a=0.3), "worry", "deadpan"),
  L("c", "Ele roda sozinho.", "Ele roda sozinho.", dict(name="cuMascot", a=0.3), "worry", "smug"),
  L("u", "E se der erro?!", "E se der erro?!", dict(name="cuUser", a=-0.3), "panic", "smug"),
- L("c", "Deixa eu trabalhar e vai tomar sol. Quando terminar, você revisa o resultado.", "Deixa eu trabalhar e vai tomar sol.\nDepois você revisa.", dict(name="screen", a=0.4), "panic", "neutral",
+ L("c", "Deixa eu trabalhar e vai tomar sol. Quando terminar, você revisa o resultado.", "Deixa eu trabalhar e vai\ntomar sol. Depois você\nrevisa.", dict(name="screen", a=0.4), "panic", "neutral",
    screen=dict(hist=[["> refatora o módulo de envio", "#ffffff"]],
                footer=[[0.0, "esc to interrupt"]],
                events=[dict(f=0.25, kind="line", text="● trabalhando…", color="#e8a07c"),

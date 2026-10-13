@@ -17,69 +17,18 @@ WORK = os.path.join(HERE, "work", EP); os.makedirs(WORK, exist_ok=True)
 SR, FPS, GAP = 44100, 24, 0.22
 
 # who: u = você (boneco), c = Claude (mascote). shot/expressões são lidos pela cena 3D.
-VOICES = {"u": "cadu", "c": "faber"}
 
-_tts = {}
-def get_tts(name):
-    if name in _tts: return _tts[name]
-    import sherpa_onnx
-    d = os.path.join(PIPER_DIR, f"vits-piper-pt_BR-{name}-medium")
-    cfg = sherpa_onnx.OfflineTtsConfig(model=sherpa_onnx.OfflineTtsModelConfig(vits=sherpa_onnx.OfflineTtsVitsModelConfig(
-        model=f"{d}/pt_BR-{name}-medium.onnx", tokens=f"{d}/tokens.txt", data_dir=f"{d}/espeak-ng-data"), num_threads=4))
-    _tts[name] = sherpa_onnx.OfflineTts(cfg); return _tts[name]
-
-import re
-PAUSES = [("…", 0.55), (".", 0.40), ("!", 0.40), ("?", 0.40), (":", 0.28), (";", 0.28), (",", 0.20)]   # micropausas por pontuação (s)
-
-def pieces(text):
-    """Quebra o texto nas pontuações: [(trecho com pontuação, pausa depois)]."""
-    text = text.replace("...", "…")
-    out = []
-    for m in re.finditer(r"([^.!?…:;,]+)([.!?…:;,]*)", text):
-        seg, punct = m.group(1).strip(), m.group(2)
-        if not seg: continue
-        pause = max([pz for ch, pz in PAUSES if ch in punct] or [0.0])
-        out.append((seg + (punct[0] if punct else ""), pause))
-    return out
-
-def speak(who, text):
-    tts = get_tts(VOICES[who]); chunks = []; sr = 22050
-    for seg, pause in pieces(text):
-        a = tts.generate(seg, sid=0, speed=1.0); x = np.asarray(a.samples, np.float32); sr = a.sample_rate
-        idx = np.where(np.abs(x) > 0.012)[0]
-        if len(idx): x = x[max(0, idx[0]-int(.02*sr)): idx[-1]+int(.06*sr)]
-        chunks.append(x); chunks.append(np.zeros(int(pause*sr), np.float32))
-    if chunks and not np.any(chunks[-1]): chunks = chunks[:-1]              # sem pausa no fim da fala
-    return np.concatenate(chunks)
-
-def shape(x, sr, tone):
-    """Entonação/timbre via Praat. 'dry': voz grave, grossa e achatada (seca); 'mock': grave, mas exagerada e arrastada (deboche)."""
-    if tone == "norm": return x
-    import parselmouth
-    from parselmouth.praat import call
-    snd = parselmouth.Sound(x.astype("float64"), sr)
-    med = call(snd.to_pitch(), "Get quantile", 0, 0, 0.5, "Hertz")
-    pm, rf, df, fs = {"dry": (0.68, 0.30, 1.0, 0.90), "mock": (0.78, 1.7, 1.12, 0.90)}[tone]   # pm: mediana do tom; fs: formantes (<1 = voz maior/mais grossa)
-    out = call(snd, "Change gender", 60, 300, fs, med*pm, rf, df)
-    y = np.asarray(out.values[0], np.float32); return y / (np.abs(y).max() + 1e-9) * 0.9
+import voice
+from voice import PARAMS
+voice.PIPER_DIR = PIPER_DIR
 
 def voice_line(i, who, text, tone="norm"):
-    raw = os.path.join(WORK, f"l{i}_raw.wav")
     ext = os.path.join(AUDIO_DIR, f"l{i}.wav") if AUDIO_DIR else ""
-    if ext and os.path.exists(ext):
-        raw = ext
-    else:
-        x = shape(speak(who, text), 22050, tone)
-        sf.write(raw, x, 22050)
-    out = os.path.join(WORK, f"l{i}.wav")
-    body = "equalizer=f=95:t=q:w=1.0:g=3.5," if who == "c" else ""
-    af = ("silenceremove=start_periods=1:start_threshold=-45dB,"
-          "highpass=f=60," + body + "equalizer=f=140:t=h:w=120:g=2.5,equalizer=f=3500:t=q:w=1.2:g=1.5,"
-          "acompressor=threshold=-20dB:ratio=3:attack=5:release=80:makeup=2,aecho=0.8:0.55:35:0.10,"
-          "loudnorm=I=-15:TP=-1.5:LRA=7")
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", raw, "-af", af, "-ar", str(SR), "-ac", "1", out], check=True)
-    a, _ = sf.read(out, dtype="float32")
-    return a
+    if ext and os.path.exists(ext):                                  # áudio gravado por você substitui a voz sintética
+        out = os.path.join(WORK, f"l{i}.wav"); voice.finish(ext, out, who, PARAMS)
+        a, _ = sf.read(out, dtype="float32"); return a
+    a = voice.synth_line(who, text, tone, PARAMS, WORK)
+    sf.write(os.path.join(WORK, f"l{i}.wav"), a, SR); return a
 
 t = META.get('t0', 0.5); lines = []
 for i, ln in enumerate(SCRIPT):

@@ -1,0 +1,1 @@
+{ "name": "claude-videos", "private": true, "dependencies": { "three": "0.160.0" } }

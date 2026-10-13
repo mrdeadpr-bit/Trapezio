@@ -211,3 +211,75 @@ EPISODES.update(
     prompt=dict(scene="couch", t0=0.12, music=0, script=PROMPT),
     sol=dict(scene="couch", t0=0.12, music=0, script=SOL),
 )
+
+
+# ---- Série 2: cenários e horários variados, falas curtas, cinismo, concorrente em cena ----
+def S(who, spoken, cap, shot, uexp="tired", mexp="neutral", **kw):
+    return dict(who=who, spoken=spoken, cap=cap, shot=shot, uexp=uexp, mexp=mexp, **kw)
+
+PLANO = [   # escritório, 14h20, o concorrente (cristal roxo) está na mesa
+ S("u", "Claude, por que tem um roxo na minha mesa?", "Claude, por que tem\num roxo na minha mesa?", dict(name="three"), "worry"),
+ S("c", "Ele chegou ontem.", "Ele chegou ontem.", dict(name="cuMascot", a=0.3), "worry", "deadpan"),
+ S("x", "Eu sou mais rápido.", "Eu sou mais rápido.", dict(name="cuComp", a=0.3), "worry", "deadpan"),
+ S("c", "Todo mundo é rápido quando não olha.", "Todo mundo é rápido\nquando não olha.", dict(name="cuMascot", a=0.25), "sly", "smug"),
+ S("u", "Tá. Renomeiem a função login.", "Tá. Renomeiem\na função login.", dict(name="cuUser", a=0.3), "neutral", "smug"),
+ S("x", "Pronto.", "Pronto.", dict(name="cuComp", a=0.45), "neutral", "smug"),
+ S("u", "Eu nem terminei de falar.", "Eu nem terminei\nde falar.", dict(name="cuUser", a=-0.3), "panic", "smug"),
+ S("x", "Pronto mesmo assim.", "Pronto mesmo assim.", dict(name="cuComp", a=0.3), "panic", "smug"),
+ S("c", "Eu faria um plano antes. Shift Tab.", "Eu faria um plano antes.\nShift + Tab.", dict(name="screen", a=0.4), "panic", "neutral",
+   screen=dict(mode="md", title="plano.md",
+               events=[dict(f=0.1, kind="line", text="# Plano: renomear login", color="#c4a3ff"),
+                       dict(f=0.28, kind="line", text="1. achar todos os usos", color="#e6e6f0"),
+                       dict(f=0.45, kind="line", text="2. renomear só em auth/", color="#e6e6f0"),
+                       dict(f=0.6, kind="line", text="3. rodar os testes", color="#e6e6f0"),
+                       dict(f=0.72, kind="banner", text="modo plano: só leio", color="#7c4dff")])),
+ S("u", "Então você só lê?", "Então você só lê?", dict(name="cuUser", a=0.3), "worry", "neutral"),
+ S("c", "Primeiro leio. Depois você aprova.", "Primeiro leio.\nDepois você aprova.", dict(name="cuMascot", a=0.3), "worry", "deadpan"),
+ S("u", "...O teste quebrou.", "...O teste quebrou.", dict(name="cuUser", a=-0.3), "defeat", "deadpan"),
+ S("x", "Eu fui rápido.", "Eu fui rápido.", dict(name="cuComp", a=0.3), "defeat", "deadpan"),
+ S("c", "Rápido é bom. Certo é melhor. Salva esse vídeo.", "Rápido é bom.\nCerto é melhor.\nSalva esse vídeo.", dict(name="three"), "happy", "happy", last=True),
+]
+
+ECOSSISTEMA = [   # quarto, 01h47, janela com luzes da cidade
+ S("u", "Era pra ser só um grupo de achadinhos do WhatsApp.", "Era pra ser só um grupo\nde achadinhos do WhatsApp.", dict(name="cuUser", a=0.3), "tired"),
+ S("c", "Virou um ecossistema inteiro.", "Virou um ecossistema\ninteiro.", dict(name="cuMascot", a=0.3), "tired", "deadpan",
+   insert=dict(kind="eco", nodes=["VPS", "n8n", "WhatsApp", "Claude", "ChatGPT", "Planilha", "Cowork"])),
+ S("u", "Eu só queria dormir cedo.", "Eu só queria\ndormir cedo.", dict(name="cuUser", a=-0.3), "defeat", "deadpan"),
+ S("c", "São uma e quarenta e sete.", "São 01:47.", dict(name="cuMascot", a=0.25), "defeat", "smug"),
+ S("u", "Eu repito a mesma tarefa toda noite.", "Eu repito a mesma\ntarefa toda noite.", dict(name="cuUser", a=0.3), "tired", "smug"),
+ S("c", "Pede com claude traço p. Agenda no servidor. Você dorme.", "claude -p, agendado no\nservidor. Você dorme.", dict(name="screen", a=-0.4), "tired", "neutral",
+   screen=dict(hist=[["$ crontab -e", "#ffffff"]], footer=[[0.0, "0 3 * * *  claude -p \"posta as ofertas\""]],
+               events=[dict(f=0.25, kind="line", text="$ claude -p \"posta as ofertas\"", color="#e8a07c"),
+                       dict(f=0.45, kind="line", text="✓ 12 ofertas postadas", color="#7ee2a8"),
+                       dict(f=0.65, kind="banner", text="roda sozinho às 3h", color="#19b46b")])),
+ S("u", "Sozinho? Sem eu aqui?", "Sozinho?\nSem eu aqui?", dict(name="cuUser", a=0.3), "worry", "neutral"),
+ S("c", "Sem você. Sinto muito pelo seu cargo.", "Sem você.\nSinto muito pelo seu cargo.", dict(name="cuMascot", a=0.3), "worry", "smug"),
+ S("u", "Meu cargo era apertar o enter.", "Meu cargo era\napertar o enter.", dict(name="cuUser", a=-0.3), "defeat", "smug"),
+ S("c", "E eu nunca apertei errado. Segue pra mais dicas.", "E eu nunca apertei errado.\nSegue pra mais dicas.", dict(name="two"), "happy", "happy", last=True),
+]
+
+EXCLAMACAO = [   # cozinha, 05h52, nascer do sol
+ S("u", "Claude, dormi no teclado. Acordei com trezentos jotas no código.", "Claude, dormi no teclado.\nAcordei com 300 jotas no código.", dict(name="cuUser", a=0.3), "tired"),
+ S("c", "Eu notei.", "Eu notei.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
+ S("u", "E não corrigiu?!", "E não corrigiu?!", dict(name="cuUser", a=-0.3), "panic", "deadpan"),
+ S("c", "Você não pediu. Você estava roncando.", "Você não pediu.\nVocê estava roncando.", dict(name="cuMascot", a=0.25), "panic", "smug"),
+ S("u", "Tá. Mostra o estrago.", "Tá. Mostra o estrago.", dict(name="cuUser", a=0.3), "angry", "smug"),
+ S("c", "Exclamação e o comando. Roda sem sair da conversa.", "! e o comando.\nRoda sem sair da conversa.", dict(name="screen", a=0.4), "angry", "neutral",
+   screen=dict(hist=[["> ! git diff", "#ffffff"]], footer=[[0.0, "! para modo bash"]],
+               events=[dict(f=0.25, kind="line", text="+ jjjjjjjjjjjjjjjjjjjjjj", color="#7ee2a8"),
+                       dict(f=0.4, kind="line", text="+ jjjjjjjjjjjjjjjjjjjjjj", color="#7ee2a8"),
+                       dict(f=0.55, kind="line", text="  (e mais 298 linhas)", color="#9a9cae"),
+                       dict(f=0.68, kind="banner", text="300 jotas encontrados", color="#e5484d")])),
+ S("u", "Exclamação?", "Exclamação?", dict(name="cuUser", a=-0.3), "worry", "neutral"),
+ S("c", "Quase ninguém sabe.", "Quase ninguém sabe.", dict(name="cuMascot", a=0.4), "worry", "deadpan"),
+ S("u", "Eu uso terminal há três anos!", "Eu uso terminal\nhá três anos!", dict(name="cuUser", a=0.3), "panic", "deadpan"),
+ S("c", "Três anos, duas janelas abertas.", "Três anos,\nduas janelas abertas.", dict(name="cuMascot", a=0.3), "panic", "smug"),
+ S("u", "...Eu nunca tentei.", "...Eu nunca tentei.", dict(name="cuUser", a=-0.3), "defeat", "smug"),
+ S("c", "Tenta. Antes que o café esfrie.", "Tenta. Antes que\no café esfrie.", dict(name="two"), "happy", "happy", last=True),
+]
+
+EPISODES.update(
+    plano=dict(scene="desk", set="office", t0=0.12, music=0, script=PLANO),
+    ecossistema=dict(scene="desk", set="night", t0=0.12, music=0, script=ECOSSISTEMA),
+    exclamacao=dict(scene="desk", set="kitchen", t0=0.12, music=0, script=EXCLAMACAO),
+)

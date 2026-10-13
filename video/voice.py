@@ -5,16 +5,16 @@ import numpy as np, soundfile as sf
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PIPER_DIR = os.environ.get("PIPER_DIR", os.path.join(HERE, "models"))
-VOICES = {"u": "cadu", "c": "faber"}
+VOICES = {"u": "cadu", "c": "faber", "x": "jeff"}
 SR = 44100
 
 PARAMS = dict(
-    speed=1.0,                                                     # velocidade do TTS (<1 = mais devagar)
+    speed=1.08,                                                    # velocidade do TTS (>1 = mais rápido, como nos exemplos)
     pauses={"…": .55, ".": .40, "!": .40, "?": .40, ":": .28, ";": .28, ",": .20},
-    comma_min_words=0,                                             # só separa por vírgula se os dois lados tiverem >= N palavras (0 = sempre)
-    dry=dict(pm=0.68, rf=0.30, df=1.0, fs=0.90),                   # pm: tom (mediana) | rf: variação de entonação | fs: formantes (<1 = voz maior)
-    mock=dict(pm=0.78, rf=1.7, df=1.12, fs=0.90),
-    echo=True, comp_ratio=3, phon=False,
+    comma_min_words=3,                                             # só separa por vírgula se os dois lados tiverem >= N palavras
+    dry=dict(pm=0.66, rf=1.2, df=1.0, fs=0.96),                    # pm: tom (mediana) | rf: variação de entonação (>1 = natural/expressiva) | fs: formantes
+    mock=dict(pm=0.76, rf=1.9, df=1.12, fs=0.96),
+    echo=False, comp_ratio=2, phon=True,
 )
 
 # grafia fonética só para o TTS (a legenda e o roteiro continuam com o texto original)
@@ -60,9 +60,9 @@ def speak(who, text, P):
         for a, b in PHON: text = re.sub(a, b, text)
     tts = get_tts(VOICES[who]); chunks = []; sr = 22050
     for seg, pause in pieces(text, P):
-        a = tts.generate(seg, sid=0, speed=P["speed"]); x = np.asarray(a.samples, np.float32); sr = a.sample_rate
-        idx = np.where(np.abs(x) > 0.012)[0]
-        if len(idx): x = x[max(0, idx[0]-int(.02*sr)): idx[-1]+int(.06*sr)]
+        a = tts.generate(seg, sid=0, speed=(1.0 if who == "x" else P["speed"])); x = np.asarray(a.samples, np.float32); sr = a.sample_rate
+        idx = np.where(np.abs(x) > 0.004)[0]
+        if len(idx): x = x[max(0, idx[0]-int(.06*sr)): idx[-1]+int(.09*sr)]
         chunks.append(x); chunks.append(np.zeros(int(pause*sr), np.float32))
     if chunks and not np.any(chunks[-1]): chunks = chunks[:-1]
     return np.concatenate(chunks), sr
@@ -72,17 +72,28 @@ def shape(x, sr, tone, P):
     import parselmouth
     from parselmouth.praat import call
     q = P[tone]; snd = parselmouth.Sound(x.astype("float64"), sr)
-    med = call(snd.to_pitch(), "Get quantile", 0, 0, 0.5, "Hertz")
-    out = call(snd, "Change gender", 60, 300, q["fs"], med*q["pm"], q["rf"], q["df"])
-    y = np.asarray(out.values[0], np.float32); return y / (np.abs(y).max() + 1e-9) * 0.9
+    for lo, hi in ((60, 300), (50, 500), (75, 600)):                     # se o Praat não achar o tom, tenta outra faixa
+        try:
+            med = call(snd.to_pitch(None, lo, hi), "Get quantile", 0, 0, 0.5, "Hertz")
+            out = call(snd, "Change gender", lo, hi, q["fs"], med*q["pm"], q["rf"], q["df"])
+            y = np.asarray(out.values[0], np.float32); return y / (np.abs(y).max() + 1e-9) * 0.9
+        except Exception:
+            continue
+    r = q["pm"]                                                           # último recurso: baixa o tom por reamostragem
+    idx = np.arange(0, len(x) - 1, r); y = np.interp(idx, np.arange(len(x)), x).astype(np.float32)
+    return y / (np.abs(y).max() + 1e-9) * 0.9
 
 def finish(raw_path, out_path, who, P):
     body = "equalizer=f=95:t=q:w=1.0:g=3.5," if who == "c" else ""
     echo = "aecho=0.8:0.55:35:0.10," if P["echo"] else ""
-    af = ("silenceremove=start_periods=1:start_threshold=-45dB,highpass=f=60," + body +
-          "equalizer=f=140:t=h:w=120:g=2.5,equalizer=f=3500:t=q:w=1.2:g=1.5,"
-          f"acompressor=threshold=-20dB:ratio={P['comp_ratio']}:attack=5:release=80:makeup=2," + echo + "loudnorm=I=-15:TP=-1.5:LRA=7")
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", raw_path, "-af", af, "-ar", str(SR), "-ac", "1", out_path], check=True)
+    af = ("highpass=f=60," + body + "equalizer=f=140:t=h:w=120:g=2.5,equalizer=f=3500:t=q:w=1.2:g=1.5,"
+          f"acompressor=threshold=-20dB:ratio={P['comp_ratio']}:attack=5:release=80:makeup=2," + echo + "alimiter=limit=0.95")
+    tmp = out_path + ".tmp.wav"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", raw_path, "-af", af, "-ar", str(SR), "-ac", "1", tmp], check=True)
+    a, _ = sf.read(tmp, dtype="float32"); os.remove(tmp)
+    v = a[np.abs(a) > 0.02]; rms = float(np.sqrt(np.mean(v**2))) if len(v) else 0.1       # volume por RMS da parte falada (igual em todas as falas)
+    a = np.tanh(a * (0.16 / max(rms, 1e-4)) * 1.0) * 0.95
+    sf.write(out_path, a.astype(np.float32), SR)
 
 def synth_line(who, text, tone, P=PARAMS, workdir=None):
     """Fala completa já processada (float32, SR=44100)."""

@@ -22,13 +22,25 @@ import voice
 from voice import PARAMS
 voice.PIPER_DIR = PIPER_DIR
 
+BEST_OF = int(os.environ.get("BEST_OF", "5"))      # tentativas por fala: guarda a que o Whisper entende melhor
+ASR = None
+if os.environ.get("ASR_DIR") and BEST_OF > 1:
+    import asr_eval; ASR = asr_eval
+
 def voice_line(i, who, text, tone="norm"):
     ext = os.path.join(AUDIO_DIR, f"l{i}.wav") if AUDIO_DIR else ""
     if ext and os.path.exists(ext):                                  # áudio gravado por você substitui a voz sintética
         out = os.path.join(WORK, f"l{i}.wav"); voice.finish(ext, out, who, PARAMS)
         a, _ = sf.read(out, dtype="float32"); return a
-    a = voice.synth_line(who, text, tone, PARAMS, WORK)
-    sf.write(os.path.join(WORK, f"l{i}.wav"), a, SR); return a
+    best = None
+    for k in range(BEST_OF if ASR else 1):                           # o TTS tem aleatoriedade: cada tentativa sai um pouco diferente
+        a = voice.synth_line(who, text, tone, PARAMS, WORK)
+        if not ASR: best = (1, a, ""); break
+        hyp = ASR.transcribe(a, SR); sc = 0.5*ASR.sim(text, hyp) + 0.5*(1 - min(1.0, ASR.wer(text, hyp)))
+        if best is None or sc > best[0]: best = (sc, a, hyp)
+        if sc >= 0.97: break
+    if ASR: print(f"  fala {i:2d} [{who}/{tone}] clareza={best[0]:.2f} (tentativas: {k+1}) -> {best[2]!r}", flush=True)
+    a = best[1]; sf.write(os.path.join(WORK, f"l{i}.wav"), a, SR); return a
 
 t = META.get('t0', 0.5); lines = []
 for i, ln in enumerate(SCRIPT):
@@ -134,7 +146,7 @@ fd = int(0.8*SR); mix[-fd:] *= np.linspace(1, 0, fd)[:, None]
 mix = np.clip(mix/np.abs(mix).max()*0.92, -1, 1)
 sf.write(os.path.join(WORK, "mix.wav"), mix, SR)
 
-tl = json.dumps(dict(total=round(TOTAL, 3), fps=FPS, lines=SCRIPT), ensure_ascii=False)
+tl = json.dumps(dict(total=round(TOTAL, 3), fps=FPS, set=META.get('set'), lines=SCRIPT), ensure_ascii=False)
 os.makedirs(os.path.join(HERE, "scene"), exist_ok=True)
 open(os.path.join(HERE, "scene", EP + ".timeline.js"), "w").write("window.TIMELINE = " + tl + ";")
 print("OK", round(TOTAL, 1), "s;", len(SCRIPT), "falas")

@@ -26,6 +26,8 @@ VARIANTS = {
  "A_atual":   dict(),
  "B_limpo":   dict(echo=False, comma_min_words=3, phon=True, dry=dict(pm=0.68, rf=0.55, df=1.0, fs=0.94), mock=dict(pm=0.78, rf=1.7, df=1.12, fs=0.94)),
  "C_B_lento": dict(echo=False, comma_min_words=3, phon=True, speed=0.93, dry=dict(pm=0.68, rf=0.55, df=1.0, fs=0.94), mock=dict(pm=0.78, rf=1.7, df=1.12, fs=0.94)),
+ "E_natural": dict(echo=False, comma_min_words=3, phon=True, speed=1.05, comp_ratio=2, dry=dict(pm=0.68, rf=1.0, df=1.0, fs=0.95), mock=dict(pm=0.78, rf=1.7, df=1.12, fs=0.95)),
+ "F_expressivo": dict(echo=False, comma_min_words=3, phon=True, speed=1.08, comp_ratio=2, dry=dict(pm=0.66, rf=1.2, df=1.0, fs=0.96), mock=dict(pm=0.76, rf=1.9, df=1.12, fs=0.96)),
  "D_natural": dict(echo=False, comma_min_words=3, phon=True, speed=0.95, comp_ratio=2, dry=dict(pm=0.70, rf=0.75, df=1.0, fs=0.95), mock=dict(pm=0.80, rf=1.7, df=1.12, fs=0.95)),
 }
 only = sys.argv[1:] or list(VARIANTS)
@@ -38,6 +40,7 @@ for name in only:
         hyp = asr_eval.transcribe(a, voice.SR); W.append(asr_eval.wer(text, hyp)); S.append(asr_eval.sim(text, hyp))
         med, var = f0var(a, voice.SR)
         if tone == "dry": V.append(var); M.append(med)
-    res[name] = dict(WER=round(float(np.mean(W)), 3), sim=round(float(np.mean(S)), 3), c_var_pct=round(float(np.mean(V)), 1), c_tom_hz=round(float(np.mean(M))), seg=round(time.time()-t0))
+    dur_w = [len(t.split())/(len(voice.synth_line(w, t, tn, P))/voice.SR) for w, t, tn in LINES[:6]]
+    res[name] = dict(pal_por_s=round(float(np.mean(dur_w)), 2), WER=round(float(np.mean(W)), 3), sim=round(float(np.mean(S)), 3), c_var_pct=round(float(np.mean(V)), 1), c_tom_hz=round(float(np.mean(M))), seg=round(time.time()-t0))
     print(name, res[name], flush=True)
 json.dump(res, open("/tmp/bench_voice.json", "w"))

@@ -22,7 +22,7 @@ SCRIPT = [
  dict(who="u", spoken="Eu sei?! E agora?!", cap="Eu sei?! E agora?!",
       shot=dict(name="cuUser", a=-0.3), uexp="panic", mexp="deadpan"),
  dict(who="c", spoken="Calma. Aperta Escape, duas vezes.", cap="Calma. Aperta Esc, Esc.",
-      shot=dict(name="cuMascot", a=-0.3), uexp="panic", mexp="neutral"),
+      shot=dict(name="cuMascot", a=0.5), uexp="panic", mexp="neutral"),
  dict(who="u", spoken="Escape, escape? E o que isso faz?", cap="Esc, Esc?\nE o que isso faz?",
       shot=dict(name="two"), uexp="worry", mexp="neutral"),
  dict(who="c", spoken="Volta no tempo. O código e a conversa.", cap="Volta no tempo.\nO código e a conversa.",

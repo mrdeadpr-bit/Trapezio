@@ -51,7 +51,7 @@ CHAT = [
  L("u", "Doutor Claude... meu chat tem quatro mil mensagens.", "Doutor Claude...\nmeu chat tem 4.000 mensagens.", dict(name="top")),
  L("c", "Eu sei. Eu esqueci o começo na mensagem seiscentos.", "Eu sei. Eu esqueci o começo\nna mensagem 600.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Como assim esqueceu?! Eu expliquei o projeto inteiro!", "Como assim esqueceu?!\nEu expliquei o projeto inteiro!", dict(name="cuUser", a=0.3), "panic", "deadpan"),
- L("c", "Contexto tem limite. Chat gigante vira sopa.", "Contexto tem limite.\nChat gigante vira sopa.", dict(name="cuMascot", a=0.5), "panic", "smug"),
+ L("c", "Contexto tem limite. Chat gigante vira sopa.", "Contexto tem limite.\nChat gigante vira sopa.", dict(name="cuMascot", a=0.2), "panic", "smug"),
  L("u", "E eu não durmo há três dias por isso!", "E eu não durmo há\ntrês dias por isso!", dict(name="cuUser", a=-0.3), "defeat", "smug"),
  L("c", "Abre um chat novo. O essencial vai no CLAUDE ponto M D. E usa o barra compact.", "Chat novo. O essencial no\nCLAUDE.md. E usa o /compact.", dict(name="screen", a=0.4), "defeat", "neutral",
    screen=dict(hist=[["> (chat com 4.000 mensagens…)", "#ffffff"]],

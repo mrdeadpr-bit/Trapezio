@@ -66,7 +66,7 @@ CHAT = [
 ]
 
 MADRUGADA = [
- L("u", "Doutor... eram onze da noite. Eu só ia trocar a cor de um botão do meu grupo de achadinhos.", "Eram 11 da noite. Eu só ia trocar a cor\nde um botão do meu grupo de achadinhos.", dict(name="cuUser", a=0.3), "tired"),
+ L("u", "Doutor... eram onze da noite. Eu só ia trocar a cor de um botão do meu grupo de achadinhos.", "Eram 11 da noite. Eu só ia trocar\na cor de um botão do meu\ngrupo de achadinhos.", dict(name="cuUser", a=0.3), "tired"),
  L("c", "São quatro da manhã.", "São 4 da manhã.", dict(name="cuMascot", a=0.3), "tired", "deadpan"),
  L("u", "Eu sei! E agora o limite de uso acabou!", "Eu sei! E agora o\nlimite de uso acabou!", dict(name="cuUser", a=-0.3), "panic", "deadpan"),
  L("c", "Você colou um log de duas mil linhas. Três vezes. Cola só o erro. E manda tudo numa mensagem só.", "Você colou um log de 2.000 linhas.\nTrês vezes. Cola só o erro.", dict(name="screen", a=-0.4), "panic", "neutral",

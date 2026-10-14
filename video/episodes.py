@@ -399,3 +399,64 @@ EPISODES.update(
     agentes=dict(scene="desk", set="studio", t0=0.12, music=0, script=AGENTES),
     memoria=dict(scene="desk", set="night", t0=0.12, music=0, script=MEMORIA),
 )
+
+SKILL = [   # quiosque, 17h40
+ T("u", "Claude, eu peço a mesma coisa toda manhã.", sh("cuUser", 0.3), "tired"),
+ T("c", "Eu percebi. Todo dia, as mesmas palavras.", sh("cuMascot", 0.3), "tired", "deadpan"),
+ T("u", "É um ritual.", sh("cuUser", -0.3), "defeat", "deadpan"),
+ T("c", "É uma skill que você ainda não criou.", sh("cuMascot", 0.25), "defeat", "smug", say="É uma isquil que você ainda não criou."),
+ T("u", "Como se cria?", sh("cuUser", 0.3), "worry", "smug"),
+ T("c", "Uma pasta, um arquivo de instruções, e pronto.", sh("screen", 0.4), "worry", "neutral",
+   screen=dict(mode="md", title=".claude/skills/achadinhos/SKILL.md",
+               events=[dict(f=0.1, kind="line", text="---", color="#9a9cae"),
+                       dict(f=0.22, kind="line", text="name: achadinhos", color="#c4a3ff"),
+                       dict(f=0.36, kind="line", text="description: posta as ofertas do dia", color="#e6e6f0"),
+                       dict(f=0.48, kind="line", text="---", color="#9a9cae"),
+                       dict(f=0.6, kind="line", text="1. buscar as ofertas", color="#7ee2a8"),
+                       dict(f=0.76, kind="banner", text="vira comando", color="#7c4dff")])),
+ T("u", "Só isso?", sh("cuUser", -0.3), "worry", "neutral"),
+ T("c", "Depois eu uso sozinho. Ou você chama com barra.", sh("cuMascot", 0.3), "worry", "deadpan"),
+ T("u", "Então eu nunca mais explico?", sh("cuUser", 0.3), "tired", "deadpan"),
+ T("c", "Você explicou uma vez. Eu lembro para sempre. Segue para mais dicas.", sh("three"), "happy", "happy", last=True, say="Você explicou uma vez. Eu lembro para sempre. Segue para mais dicas."),
+]
+
+MCP = [   # escritório, 15h
+ T("u", "Estou copiando a planilha para você há uma hora, Claude.", sh("cuUser", 0.3), "panic"),
+ T("c", "Eu vi você copiar e colar.", sh("cuMascot", 0.3), "panic", "deadpan"),
+ T("u", "É assim que se trabalha!", sh("cuUser", -0.3), "angry", "deadpan"),
+ T("c", "Conecta um servidor MCP. Eu leio a planilha, sem copiar.", sh("screen", 0.4), "angry", "neutral", say="Conecta um servidor ême cê pê. Eu leio a planilha, sem copiar.",
+   screen=dict(hist=[["> claude mcp add sheets", "#ffffff"]],
+               events=[dict(f=0.25, kind="line", text="✓ conectado: sheets", color="#7ee2a8"),
+                       dict(f=0.45, kind="line", text="ferramentas: listar_abas, ler_aba", color="#9a9cae"),
+                       dict(f=0.7, kind="banner", text="lê direto", color="#19b46b")])),
+ T("u", "Você abre a minha planilha?", sh("cuUser", 0.3), "worry", "neutral"),
+ T("c", "Só se você deixar. Eu peço antes.", sh("cuMascot", 0.3), "worry", "smug"),
+ T("u", "E o que mais conecta?", sh("cuUser", -0.3), "tired", "smug"),
+ T("c", "Banco de dados, calendário, e-mail. Muita coisa.", sh("cuMascot", 0.25), "tired", "deadpan"),
+ T("u", "Então eu fui o cabo esse tempo todo.", sh("cuUser", 0.3), "defeat", "deadpan"),
+ T("c", "Um cabo muito dedicado. Segue para mais dicas.", sh("two"), "happy", "happy", last=True),
+]
+
+PERMISSOES = [   # quarto, 02h10
+ T("u", "Você pediu permissão trinta vezes, Claude.", sh("cuUser", 0.3), "angry"),
+ T("c", "Foram trinta e uma vezes.", sh("cuMascot", 0.3), "angry", "deadpan"),
+ T("u", "Para rodar um ls!", sh("cuUser", -0.3), "panic", "deadpan"),
+ T("c", "Você disse sim. Trinta vezes.", sh("cuMascot", 0.25), "panic", "smug"),
+ T("u", "Como eu faço isso parar?", sh("cuUser", 0.3), "worry", "smug"),
+ T("c", "Digita barra permissões. Libera os comandos seguros uma vez só.", sh("screen", 0.4), "worry", "neutral",
+   screen=dict(hist=[["> /permissions", "#ffffff"]],
+               events=[dict(f=0.2, kind="line", text="Allow  Bash(npm test)", color="#7ee2a8"),
+                       dict(f=0.36, kind="line", text="Allow  Bash(git status)", color="#7ee2a8"),
+                       dict(f=0.52, kind="line", text="Deny   Bash(rm -rf *)", color="#e5484d"),
+                       dict(f=0.72, kind="banner", text="libera uma vez", color="#19b46b")])),
+ T("u", "E se eu apagar tudo?", sh("cuUser", -0.3), "worry", "neutral"),
+ T("c", "Apagar tudo eu bloqueio. Por amor.", sh("cuMascot", 0.3), "worry", "deadpan"),
+ T("u", "Por amor a quê?", sh("cuUser", 0.3), "tired", "deadpan"),
+ T("c", "À sua produção. Segue para mais dicas.", sh("two"), "happy", "happy", last=True),
+]
+
+EPISODES.update(
+    skill=dict(scene="desk", set="quiosque", t0=0.12, music=0, script=SKILL),
+    mcp=dict(scene="desk", set="office", t0=0.12, music=0, script=MCP),
+    permissoes=dict(scene="desk", set="night", t0=0.12, music=0, script=PERMISSOES),
+)

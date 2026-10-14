@@ -5,7 +5,7 @@ import numpy as np, soundfile as sf
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PIPER_DIR = os.environ.get("PIPER_DIR", os.path.join(HERE, "models"))
-VOICES = {"u": "cadu", "c": "faber", "x": "jeff"}                  # vozes Piper (boneco usa cadu)
+VOICES = {"u": "cadu", "c": "faber", "x": "cadu"}                  # vozes Piper (boneco usa cadu)
 KOKORO_DIR = os.environ.get("KOKORO_DIR", os.path.join(HERE, "models"))
 KOKORO = {"u": "pm_santa", "c": "pm_alex", "x": "pf_dora"}           # os três em Kokoro (bem mais natural que o Piper), cada um com um timbre
 if os.environ.get("HUMAN_PIPER") == "1": KOKORO.pop("u")                  # HUMAN_PIPER=1 volta a voz antiga do boneco (Piper/cadu)
@@ -18,6 +18,7 @@ PARAMS = dict(
     pauses={"…": .55, ".": .40, "!": .40, "?": .40, ":": .28, ";": .28, ",": .20},
     comma_min_words=3,                                             # só separa por vírgula se os dois lados tiverem >= N palavras
     dry=dict(pm=0.78, rf=1.0, df=1.0, fs=1.0),                     # pm: tom (mediana) | rf: variação de entonação (1.0 = natural, sem achatar) | fs: formantes (1.0 = timbre original)
+    fem=dict(pm=1.85, rf=1.15, df=1.0, fs=1.2),                    # voz feminina delicada a partir do Piper (sem sotaque): tom mais alto + formantes menores
     mock=dict(pm=0.86, rf=1.5, df=1.08, fs=1.0),
     echo=False, comp_ratio=2, phon=True,
     kspeed=1.05, kspeed_mock=0.92,                                 # velocidade do Kokoro (normal / deboche)
@@ -26,7 +27,7 @@ PARAMS = dict(
 
 LPARAMS = dict(PARAMS, speed=1.0, comma_min_words=1, thr=0.012, pad0=0.02, pad1=0.06,
                dry=dict(pm=0.68, rf=0.30, df=1.0, fs=0.90), mock=dict(pm=0.78, rf=1.7, df=1.12, fs=0.90), phon=False)
-def use_k(who): return who in KOKORO and (USE_KOKORO or who == "x")
+def use_k(who): return who in KOKORO and (USE_KOKORO or (who == "x" and os.environ.get("X_KOKORO") == "1"))
 
 # grafia fonética só para o TTS (a legenda e o roteiro continuam com o texto original)
 PHON = [
@@ -143,6 +144,7 @@ def synth_line(who, text, tone, P=PARAMS, workdir=None):
         raw, out = os.path.join(workdir, "raw.wav"), os.path.join(workdir, "out.wav")
         sf.write(raw, x, sr); finish_legacy(raw, out, who)
         a, _ = sf.read(out, dtype="float32"); return a
+    if who == "x": tone = "fem"
     x, sr = speak(who, text, P, tone); x = shape(x, sr, tone, P, who)
     raw, out = os.path.join(workdir, "raw.wav"), os.path.join(workdir, "out.wav")
     sf.write(raw, x, sr); finish(raw, out, who, P)

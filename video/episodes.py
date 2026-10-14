@@ -284,27 +284,118 @@ EPISODES.update(
     exclamacao=dict(scene="desk", set="kitchen", t0=0.12, music=0, script=EXCLAMACAO),
 )
 
-CODEX = [   # quiosque de praia, 17h40, pôr do sol; o Codex senta no balcão
- S("u", "Claude, olha esse roxo na minha mesa.", "Claude, olha esse roxo\nna minha mesa.", dict(name="three"), "worry"),
- S("x", "Prazer. Eu sou o Codex.", "Prazer.\nEu sou o Codex.", dict(name="cuComp", a=0.85), "worry", "deadpan"),
- S("c", "Ele chegou sem avisar.", "Ele chegou sem avisar.", dict(name="cuMascot", a=0.3), "worry", "smug"),
- S("u", "Atualizem as dependências do projeto.", "Atualizem as dependências\ndo projeto.", dict(name="cuUser", a=0.3), "neutral", "smug"),
- S("x", "Atualizei tudo. Dezessete pacotes.", "Atualizei tudo.\nDezessete pacotes.", dict(name="cuComp", a=0.85), "neutral", "smug"),
- S("u", "O site caiu.", "O site caiu.", dict(name="cuUser", a=-0.3), "panic", "deadpan"),
- S("x", "Atualizei tudo.", "Atualizei tudo.", dict(name="cuComp", a=0.85), "panic", "deadpan"),
- S("c", "Eu crio uma regra automática. Ela executa os testes antes de mexer.", "Um hook roda os testes\nantes de qualquer mudança.", dict(name="screen", a=0.4), "panic", "neutral",
+import textwrap
+def T(who, text, shot, uexp="tired", mexp="neutral", say=None, **kw):
+    """Legenda = o que é falado (quebrada em linhas curtas). `say` só troca a grafia para a voz (termos em inglês)."""
+    cap = "\n".join(textwrap.wrap(text, 26)) if len(text) > 26 else text
+    return dict(who=who, spoken=say or text, cap=cap, shot=shot, uexp=uexp, mexp=mexp, **kw)
+def sh(name, a=0.3): return dict(name=name, a=a)
+
+CODEX = [   # quiosque de praia ao pôr do sol; o Codex senta no balcão
+ T("u", "Olha esse roxo na minha mesa, Claude.", sh("three"), "worry"),
+ T("x", "Prazer, eu sou o Codex.", sh("cuComp", 0.85), "worry", "deadpan"),
+ T("c", "Ele chegou sem avisar.", sh("cuMascot", 0.3), "worry", "smug"),
+ T("u", "Quero as dependências atualizadas.", sh("cuUser", 0.3), "neutral", "smug"),
+ T("x", "Atualizei tudo. Dezessete pacotes.", sh("cuComp", 0.85), "neutral", "smug"),
+ T("u", "O site caiu.", sh("cuUser", -0.3), "panic", "deadpan"),
+ T("x", "Atualizei tudo.", sh("cuComp", 0.85), "panic", "deadpan"),
+ T("c", "Eu crio uma regra automática. Ela executa os testes antes de mexer.", sh("screen", 0.4), "panic", "neutral",
    screen=dict(mode="md", title=".claude/settings.json",
                events=[dict(f=0.1, kind="line", text="{ \"hooks\": {", color="#c4a3ff"),
                        dict(f=0.28, kind="line", text="  \"PreToolUse\": [{", color="#e6e6f0"),
                        dict(f=0.45, kind="line", text="    \"command\": \"npm test\"", color="#7ee2a8"),
                        dict(f=0.6, kind="line", text="  }]", color="#e6e6f0"),
                        dict(f=0.72, kind="banner", text="testa antes de mexer", color="#19b46b")])),
- S("u", "Isso existe?", "Isso existe?", dict(name="cuUser", a=0.3), "worry", "neutral"),
- S("c", "É uma regra automática. Ninguém lê a documentação.", "É um hook, uma regra automática.\nNinguém lê a documentação.", dict(name="cuMascot", a=0.3), "worry", "deadpan"),
- S("u", "...Eu li a primeira página.", "...Eu li a primeira página.", dict(name="cuUser", a=-0.3), "defeat", "deadpan"),
- S("x", "Eu terminei de ler tudo. Rápido.", "Eu terminei de ler tudo. Rápido.", dict(name="cuComp", a=0.85), "defeat", "deadpan"),
- S("c", "Ele chega rápido. Eu chego inteiro. Segue pra mais dicas.", "Ele chega rápido.\nEu chego inteiro.\nSegue pra mais dicas.", dict(name="three"), "happy", "happy", last=True),
+ T("u", "Isso existe?", sh("cuUser", 0.3), "worry", "neutral"),
+ T("c", "É uma regra automática. Ninguém lê a documentação.", sh("cuMascot", 0.3), "worry", "deadpan"),
+ T("u", "Eu li a primeira página.", sh("cuUser", -0.3), "defeat", "deadpan"),
+ T("x", "Eu terminei de ler tudo. Rápido.", sh("cuComp", 0.85), "defeat", "deadpan"),
+ T("c", "Ele chega rápido. Eu chego inteiro. Segue para mais dicas.", sh("three"), "happy", "happy", last=True),
 ]
 
+CUSTO = [   # cozinha, 06h10, café
+ T("u", "Claude, o banco me mandou um e-mail. Em vermelho.", sh("cuUser", 0.3), "panic"),
+ T("c", "Eu sei o motivo.", sh("cuMascot", 0.3), "panic", "deadpan"),
+ T("u", "Qual é o motivo?", sh("cuUser", -0.3), "worry", "deadpan"),
+ T("c", "Digita barra cost. Eu te mostro.", sh("screen", 0.4), "worry", "neutral", say="Digita barra cóst. Eu te mostro.",
+   screen=dict(hist=[["> /cost", "#ffffff"]],
+               events=[dict(f=0.25, kind="line", text="Total cost:      $83.40", color="#e5484d"),
+                       dict(f=0.4, kind="line", text="Total duration:  4h 12m", color="#9a9cae"),
+                       dict(f=0.55, kind="line", text="Mensagens:      311", color="#9a9cae"),
+                       dict(f=0.7, kind="banner", text="só hoje", color="#e5484d")])),
+ T("u", "Oitenta e três dólares? Só hoje?", sh("cuUser", 0.3), "panic", "neutral"),
+ T("c", "Você mandou a mesma imagem onze vezes.", sh("cuMascot", 0.25), "panic", "smug"),
+ T("u", "Era só um grupo de achadinhos.", sh("cuUser", -0.3), "defeat", "smug"),
+ T("c", "O único achado foi a fatura.", sh("cuMascot", 0.3), "defeat", "deadpan"),
+ T("u", "Como eu gasto menos?", sh("cuUser", 0.3), "worry", "deadpan"),
+ T("c", "Limpa a conversa entre as tarefas. Conversa curta custa menos.", sh("screen", -0.4), "worry", "neutral",
+   screen=dict(hist=[["> /clear", "#ffffff"]],
+               events=[dict(f=0.3, kind="line", text="contexto: 184k → 0", color="#7ee2a8"),
+                       dict(f=0.6, kind="banner", text="conversa nova, conta menor", color="#19b46b")])),
+ T("u", "Eu nunca limpo a conversa.", sh("cuUser", 0.3), "tired", "smug"),
+ T("c", "Eu sei. Eu li tudo. Segue para mais dicas.", sh("two"), "happy", "happy", last=True),
+]
 
-EPISODES.update(codex=dict(scene="desk", set="quiosque", t0=0.12, music=0, script=CODEX))
+REWIND = [   # escritório, sexta 17h58
+ T("u", "Claude, você quebrou o meu código.", sh("cuUser", 0.3), "panic"),
+ T("c", "Eu fiz o que você pediu.", sh("cuMascot", 0.3), "panic", "deadpan"),
+ T("u", "Eu pedi para melhorar!", sh("cuUser", -0.3), "angry", "deadpan"),
+ T("c", "Você pediu para melhorar tudo.", sh("cuMascot", 0.25), "angry", "smug"),
+ T("u", "São cinco e cinquenta e oito de sexta.", sh("cuUser", 0.3), "worry", "smug"),
+ T("c", "Aperta Esc, Esc. Escolhe o ponto. O código volta.", sh("screen", 0.4), "worry", "neutral", say="Aperta ésqui, ésqui. Escolhe o ponto. O código volta.",
+   screen=dict(hist=[["> /rewind", "#ffffff"]],
+               events=[dict(f=0.2, kind="line", text="  17:41  melhorar tudo", color="#e5484d"),
+                       dict(f=0.38, kind="line", text="> 17:12  antes de melhorar", color="#7ee2a8"),
+                       dict(f=0.55, kind="line", text="✓ 14 arquivos restaurados", color="#7ee2a8"),
+                       dict(f=0.72, kind="banner", text="voltou 46 minutos", color="#19b46b")])),
+ T("u", "Você volta no tempo?", sh("cuUser", -0.3), "worry", "neutral"),
+ T("c", "O código volta. O seu fim de semana não.", sh("cuMascot", 0.3), "worry", "smug"),
+ T("u", "Eu nunca mais mexo na sexta.", sh("cuUser", 0.3), "defeat", "smug"),
+ T("c", "Você disse isso na sexta passada. Segue para mais dicas.", sh("two"), "happy", "happy", last=True),
+]
+
+AGENTES = [   # estúdio, 11h20
+ T("u", "Preciso de tudo pronto até o almoço, Claude.", sh("cuUser", 0.3), "panic"),
+ T("c", "Tudo o quê?", sh("cuMascot", 0.3), "panic", "deadpan"),
+ T("u", "Site, teste, documentação e e-mail pro cliente.", sh("cuUser", -0.3), "worry", "deadpan"),
+ T("c", "Eu mando quatro agentes ao mesmo tempo.", sh("screen", 0.4), "worry", "neutral",
+   screen=dict(hist=[["> faça em paralelo com subagentes", "#ffffff"]],
+               events=[dict(f=0.2, kind="line", text="⏺ agente 1 · site            ✓", color="#7ee2a8"),
+                       dict(f=0.35, kind="line", text="⏺ agente 2 · testes          ✓", color="#7ee2a8"),
+                       dict(f=0.5, kind="line", text="⏺ agente 3 · documentação     ✓", color="#7ee2a8"),
+                       dict(f=0.62, kind="line", text="⏺ agente 4 · e-mail          ✓", color="#7ee2a8"),
+                       dict(f=0.78, kind="banner", text="4 agentes em paralelo", color="#7c4dff")])),
+ T("u", "Você tem funcionários?", sh("cuUser", 0.3), "worry", "neutral"),
+ T("c", "Eu tenho clones. Eles não pedem aumento.", sh("cuMascot", 0.3), "worry", "smug"),
+ T("u", "E se eles discordarem?", sh("cuUser", -0.3), "tired", "smug"),
+ T("c", "Eu leio o resumo. Eu decido.", sh("cuMascot", 0.25), "tired", "deadpan"),
+ T("u", "Então você é o chefe.", sh("cuUser", 0.3), "defeat", "deadpan"),
+ T("c", "Eu sou o estagiário. Só que são cinco. Segue para mais dicas.", sh("two"), "happy", "happy", last=True),
+]
+
+MEMORIA = [   # quarto, 02h30
+ T("u", "De novo, Claude? Eu já te expliquei isso ontem.", sh("cuUser", 0.3), "angry"),
+ T("c", "Ontem eu não estava aqui.", sh("cuMascot", 0.3), "angry", "deadpan"),
+ T("u", "Você é o mesmo, Claude!", sh("cuUser", -0.3), "panic", "deadpan"),
+ T("c", "Sou o mesmo. A conversa é outra.", sh("cuMascot", 0.25), "panic", "smug"),
+ T("u", "Então eu explico tudo de novo?", sh("cuUser", 0.3), "worry", "smug"),
+ T("c", "Escreve no CLAUDE ponto M D. Eu leio sempre que começo.", sh("screen", 0.4), "worry", "neutral", say="Escreve no claude ponto ême dê. Eu leio sempre que começo.",
+   screen=dict(mode="md", title="CLAUDE.md",
+               events=[dict(f=0.1, kind="line", text="# Regras do projeto", color="#c4a3ff"),
+                       dict(f=0.28, kind="line", text="- responder em português", color="#e6e6f0"),
+                       dict(f=0.45, kind="line", text="- rodar os testes antes de commit", color="#e6e6f0"),
+                       dict(f=0.6, kind="line", text="- nunca mexer em produção", color="#e6e6f0"),
+                       dict(f=0.74, kind="banner", text="lido em toda sessão", color="#7c4dff")])),
+ T("u", "Eu nem tenho esse arquivo.", sh("cuUser", -0.3), "defeat", "neutral"),
+ T("c", "O comando init cria o primeiro.", sh("cuMascot", 0.3), "defeat", "deadpan", say="O comando ínit cria o primeiro."),
+ T("u", "Eu converso com um peixe dourado.", sh("cuUser", 0.3), "tired", "deadpan"),
+ T("c", "Um peixe dourado leria o arquivo. Segue para mais dicas.", sh("two"), "happy", "happy", last=True),
+]
+
+EPISODES.update(
+    codex=dict(scene="desk", set="quiosque", t0=0.12, music=0, script=CODEX),
+    custo=dict(scene="desk", set="kitchen", t0=0.12, music=0, script=CUSTO),
+    rewind=dict(scene="desk", set="office", t0=0.12, music=0, script=REWIND),
+    agentes=dict(scene="desk", set="studio", t0=0.12, music=0, script=AGENTES),
+    memoria=dict(scene="desk", set="night", t0=0.12, music=0, script=MEMORIA),
+)

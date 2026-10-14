@@ -174,38 +174,38 @@ box(1.45, 1.35, 2.1, [M.faceMat, orange, orange, orange, orange, orange], 0, 1.3
 M.legs = [[-0.5, -0.7], [-0.5, 0.7], [0.45, -0.7], [0.45, 0.7]].map(p => box(0.36, 0.7, 0.36, mat(0xf08a60), p[0], 0.35, p[1], mascot));
 M.armR = box(0.3, 0.6, 0.3, orange, 0.15, 1.25, 1.2, M.body); M.armL = box(0.3, 0.6, 0.3, orange, 0.15, 1.25, -1.2, M.body);
 
-// ---------- concorrente: cluster de cristal low-poly (roxo/azul) com ">_" ----------
+// ---------- concorrente: Codex (nuvem de cristal low-poly azul/roxo com ">_" grande) ----------
 const comp = new THREE.Group(); comp.position.set(6.0, 2.38, 0.0); comp.rotation.y = Math.PI + 0.3; comp.visible = HAS_COMP; scene.add(comp);
 const C = {}; C.body = new THREE.Group(); comp.add(C.body);
 function hash3(x, y, z) { const v = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453; return v - Math.floor(v); }
-function crystalLump(r, detail, seed, sx = 1, sy = 1, sz = 1) {
+const CR_LOW = new THREE.Color(0x2f24c9), CR_MID = new THREE.Color(0x5a3df0), CR_TOP = new THREE.Color(0xb59cff);
+function crystalLump(r, detail, seed, yoff) {
   const g = new THREE.IcosahedronGeometry(r, detail); const pos = g.attributes.position, col = [];
-  for (let i = 0; i < pos.count; i++) {                                    // deforma pela posição: vértices compartilhados se movem juntos
-    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i), k = 0.78 + 0.5 * hash3(Math.round(x * 20) + seed, Math.round(y * 20), Math.round(z * 20));
-    pos.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
+  for (let i = 0; i < pos.count; i++) {                                    // deforma pela posição: vértices compartilhados se movem juntos (formato de nuvem arredondada)
+    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i), k = 0.9 + 0.24 * hash3(Math.round(x * 14) + seed, Math.round(y * 14), Math.round(z * 14));
+    pos.setXYZ(i, x * k, y * k * 0.92, z * k);
   }
-  g.computeVertexNormals(); const nrm = new THREE.Vector3();
-  const palette = [0x4a28d6, 0x6a3df0, 0x7d55f7, 0x5a35e8, 0x9473ff, 0x3a1fb8].map(h => new THREE.Color(h));
-  for (let t = 0; t < pos.count; t += 3) {                                 // cada triângulo ganha uma cor própria (efeito facetado)
-    const cx = (pos.getX(t) + pos.getX(t + 1) + pos.getX(t + 2)) / 3, cy = (pos.getY(t) + pos.getY(t + 1) + pos.getY(t + 2)) / 3, cz = (pos.getZ(t) + pos.getZ(t + 1) + pos.getZ(t + 2)) / 3;
-    nrm.set(cx, cy, cz).normalize(); const base = palette[Math.floor(hash3(t, seed, 7) * palette.length)].clone();
-    base.multiplyScalar(0.7 + 0.35 * (nrm.y * 0.5 + 0.5) + 0.25 * hash3(t, 3, seed)); for (let j = 0; j < 3; j++) col.push(base.r, base.g, base.b);
+  g.computeVertexNormals();
+  for (let t = 0; t < pos.count; t += 3) {                                 // cada faceta ganha cor: degradê vertical (índigo embaixo, lavanda em cima) + variação
+    const cy = (pos.getY(t) + pos.getY(t + 1) + pos.getY(t + 2)) / 3 + yoff; const h = Math.min(1, Math.max(0, (cy - 0.3) / 3.2));
+    const base = h < 0.5 ? CR_LOW.clone().lerp(CR_MID, h * 2) : CR_MID.clone().lerp(CR_TOP, (h - 0.5) * 2);
+    base.multiplyScalar(0.82 + 0.3 * hash3(t, 3, seed)); for (let j = 0; j < 3; j++) col.push(base.r, base.g, base.b);
   }
   g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3)); return g;
 }
-const crystalMat = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.3, metalness: 0.12, emissive: 0x2d1a9a, emissiveIntensity: 0.55 });
-[[1.25, 1.7, 0, 0.0, 1.0, 1.0, 1.1, 1], [0.95, 2.7, 0.45, 0.35, 1, 1, 1, 2], [0.85, 2.5, -0.55, -0.45, 1, 1, 1, 3], [0.8, 1.2, 0.2, 0.95, 1, 0.9, 1, 4], [0.75, 1.15, -0.1, -0.95, 1, 0.9, 1, 5], [0.7, 2.0, 0.9, -0.2, 1, 1, 1, 6]].forEach(([r, y, x, z, sx, sy, sz, seed]) => {
-  const m = new THREE.Mesh(crystalLump(r, 1, seed * 11, sx, sy, sz), crystalMat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; C.body.add(m); });
+const crystalMat = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.32, metalness: 0.1, emissive: 0x2a1a9a, emissiveIntensity: 0.5 });
+[[1.2, 1.35, 0.0, 0.0, 1], [1.05, 1.25, 0.2, 1.15, 2], [1.0, 1.2, 0.1, -1.2, 3], [0.95, 2.35, 0.1, 0.55, 4], [0.9, 2.4, 0.0, -0.6, 5], [0.8, 3.15, 0.0, 0.0, 6], [0.7, 1.0, 0.85, 0.55, 7], [0.7, 1.0, 0.85, -0.55, 8]].forEach(([r, y, x, z, seed]) => {
+  const m = new THREE.Mesh(crystalLump(r, 1, seed * 11, y), crystalMat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; C.body.add(m); });
 C.mesh = C.body;
-const cSym = canvasTex(256, 192, (c, w, h) => { c.clearRect(0, 0, w, h); c.strokeStyle = "#ffffff"; c.lineWidth = 20; c.lineCap = "square"; c.lineJoin = "miter"; c.beginPath(); c.moveTo(34, 38); c.lineTo(104, 92); c.lineTo(34, 146); c.stroke(); c.beginPath(); c.moveTo(130, 150); c.lineTo(214, 150); c.stroke(); });
-C.sym = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.64), new THREE.MeshBasicMaterial({ map: cSym.tex, transparent: true })); C.sym.position.set(1.6, 1.25, 0.1); C.sym.rotation.y = Math.PI / 2; C.body.add(C.sym);
+const cSym = canvasTex(320, 240, (c, w, h) => { c.clearRect(0, 0, w, h); c.strokeStyle = "#ffffff"; c.lineWidth = 30; c.lineCap = "square"; c.lineJoin = "miter"; c.beginPath(); c.moveTo(48, 50); c.lineTo(140, 118); c.lineTo(48, 186); c.stroke(); c.beginPath(); c.moveTo(168, 192); c.lineTo(276, 192); c.stroke(); });
+C.sym = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 1.28), new THREE.MeshBasicMaterial({ map: cSym.tex, transparent: true })); C.sym.position.set(1.9, 1.7, 0.0); C.sym.rotation.y = Math.PI / 2; C.body.add(C.sym);
 if (HAS_COMP) {
   scene.updateMatrixWorld(true); const rc = new THREE.Raycaster(), meshes = C.body.children.filter(o => o.isMesh && o !== C.sym);
-  const o = C.body.localToWorld(new THREE.Vector3(5, 1.05, 0.25)), dir = C.body.localToWorld(new THREE.Vector3(0, 1.05, 0.25)).sub(o).normalize();
+  const o = C.body.localToWorld(new THREE.Vector3(6, 1.75, 0.05)), dir = C.body.localToWorld(new THREE.Vector3(0, 1.75, 0.05)).sub(o).normalize();
   rc.set(o, dir); const hit = rc.intersectObjects(meshes, false)[0];
-  if (hit) { const lp = C.body.worldToLocal(hit.point.clone()); C.sym.position.set(lp.x + 0.07, lp.y, lp.z); }
+  if (hit) { const lp = C.body.worldToLocal(hit.point.clone()); C.sym.position.set(lp.x + 0.45, 1.75, 0.0); }
+  const cl = new THREE.PointLight(0x8a5cff, 3.0, 10, 1.4); cl.position.set(5.2, 4.2, 1.8); scene.add(cl);
 }
-if (HAS_COMP) { const cl = new THREE.PointLight(0x8a5cff, 3.0, 10, 1.4); cl.position.set(5.2, 4.2, 1.8); scene.add(cl); }
 
 // ---------- cenários ----------
 const R_ = (x) => x;
@@ -312,6 +312,43 @@ function buildKitchen() {
   bloomK = 0.12;
 }
 
+function buildQuiosque() {                                                     // quiosque de praia ao pôr do sol
+  scene.background = new THREE.Color(0xf0a070);
+  const skyT = canvasTex(1024, 640, (c, w, h) => {
+    [["#232a78", 0], ["#4d3a96", .1], ["#8a4a9a", .2], ["#d1566f", .31], ["#ff8a58", .42], ["#ffb868", .52], ["#ffe09a", .6]].forEach(([col, p]) => { c.fillStyle = col; c.fillRect(0, h * p, w, h * (1 - p)); });
+    c.fillStyle = "#2a58b4"; c.fillRect(0, h * 0.64, w, h * 0.36); c.fillStyle = "#3a6ec8"; c.fillRect(0, h * 0.72, w, h * 0.28); c.fillStyle = "#4a80d8"; c.fillRect(0, h * 0.84, w, h * 0.16);
+    c.fillStyle = "#fff0b8"; c.beginPath(); c.arc(w * 0.62, h * 0.6, 54, Math.PI, 0); c.fill();                                          // sol no horizonte
+    c.fillStyle = "#ffd98a"; [[.66, 70], [.62, 120], [.58, 190], [.64, 260], [.6, 320]].forEach(([x, wd], i) => c.fillRect(w * x - wd / 2, h * (0.66 + i * 0.05), wd, 6));   // reflexo do sol no mar
+  });
+  const skyM = new THREE.MeshBasicMaterial({ map: skyT.tex }); const sky = new THREE.Mesh(new THREE.PlaneGeometry(90, 56), skyM); sky.position.set(2, 12.2, -32); scene.add(sky);
+  box(60, 0.4, 28, mat(0xe6c895), 0, -0.2, -2, scene, { cast: false });                                                                      // areia
+  box(60, 0.3, 4, mat(0xcaa874), 0, 0.0, -13, scene, { cast: false }); box(60, 0.1, 0.5, mat(0xffffff), 0, 0.1, -15.2, scene, { cast: false });   // areia molhada / espuma
+  box(40, 0.4, 36, mat(0x2b62c0), 0, -0.25, -33, scene, { cast: false });
+  box(6, 0.05, 3.5, mat(0xd9484a), -3, 0.03, 3.8, scene, { cast: false }); box(6, 0.06, 0.6, mat(0xffffff), -3, 0.05, 3.8, scene, { cast: false });   // canga/toalha
+  box(18, 0.3, 11, mat(0xc9a15a), 3, 9.6, -0.5, scene, { cast: false });                                                                      // teto de palha
+  for (let i = 0; i < 28; i++) box(0.5, 1.1 + (i % 3) * 0.25, 0.25, mat(0xb78a44), -5.7 + i * 0.42, 8.8, 5.0, scene, { cast: false });         // franja da palha
+  [[-6.2, -3.2], [12.2, -3.2], [-6.2, 4.4], [12.2, 4.4]].forEach(p => box(0.45, 9.4, 0.45, mat(0x7a4a28), p[0], 4.7, p[1], scene, { cast: false }));   // postes
+  for (let i = 0; i < 16; i++) box(0.2, 0.28, 0.2, glowMat(0xffc477, 1.8), -5.8 + i * 0.78, 8.3 - 0.25 * Math.sin(Math.PI * i / 15), 5.05, scene, { cast: false });   // luzinhas
+  box(12.5, 2.3, 3.0, mat(0x8a5a30), 8.2, 1.15, 0.0); box(12.8, 0.14, 3.2, mat(0xd9b78a), 8.2, 2.34, 0.0);                                    // balcão
+  [[-0.9, 0.2, 1], [-0.2, 0.2, 2]].forEach(() => 0);
+  box(1.8, 0.25, 1.8, mat(0xc9a15a), -1.4, 1.37, 0.2); [[-2.1, -0.5], [-2.1, 0.9], [-0.7, -0.5], [-0.7, 0.9]].forEach(p => box(0.18, 1.3, 0.18, mat(0x7a4a28), p[0], 0.65, p[1]));   // banco
+  box(1.0, 1.0, 1.0, mat(0x3a8bd8), -4.2, 0.5, 2.6); box(1.05, 0.12, 1.05, mat(0xffffff), -4.2, 1.05, 2.6);                                  // cooler
+  box(0.5, 0.7, 0.5, mat(0xf3f3f3), 4.4, 2.75, 1.0); box(0.5, 0.18, 0.5, mat(0x7a4a28), 4.4, 3.15, 1.0); box(0.06, 0.9, 0.06, mat(0xe5484d), 4.55, 3.4, 1.05);   // coco com canudo
+  box(0.5, 0.4, 0.5, mat(0x6fbf5a), 9.4, 2.55, 0.9); box(0.35, 0.35, 0.35, mat(0xffd23a), 8.6, 2.52, 0.8);
+  [[-9.5, -4.8, 1], [14.5, -5.5, -1]].forEach(([x, z, d]) => {                                                                                 // palmeiras
+    for (let i = 0; i < 7; i++) box(0.55, 1.25, 0.55, mat(i % 2 ? 0x8a5a30 : 0x7a4a28), x + d * i * 0.14, 0.62 + i * 1.2, z);
+    for (let i = 0; i < 7; i++) { const lf = box(3.8, 0.14, 0.9, mat(i % 2 ? 0x3f9a4a : 0x2f8a40), x + d * 1.0 + Math.cos(i / 7 * 6.28) * 1.8, 8.6 - Math.abs(Math.sin(i / 7 * 6.28)) * 0.6, z + Math.sin(i / 7 * 6.28) * 1.6); lf.rotation.y = -i / 7 * 6.28; lf.rotation.z = Math.cos(i / 7 * 6.28) * 0.35; } });
+  box(0.4, 4.2, 0.9, mat(0x2fb7a8), -8.0, 2.1, 1.0); box(0.42, 1.2, 0.92, mat(0xffd23a), -8.0, 3.0, 1.0); box(0.42, 0.6, 0.92, mat(0xe5484d), -8.0, 1.0, 1.0);   // prancha
+  scene.add(new THREE.HemisphereLight(0xffc9a0, 0x5a6aa8, 0.9));
+  const sun = new THREE.DirectionalLight(0xff9a58, 1.6); sun.position.set(-4, 6, -14); sun.target.position.set(1, 2, 0); scene.add(sun, sun.target);
+  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 5; sun.shadow.bias = -0.0003;
+  Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 12, bottom: -9, near: 1, far: 50 }); sun.shadow.camera.updateProjectionMatrix();
+  const fill = new THREE.DirectionalLight(0xfff0e0, 0.9); fill.position.set(2, 6, 12); scene.add(fill);
+  const fillM = new THREE.DirectionalLight(0xffe2c8, 1.2); fillM.position.set(-6, 5, 9); scene.add(fillM);
+  const warm = new THREE.PointLight(0xffb070, 1.6, 12, 1.4); warm.position.set(2, 7.4, 3); scene.add(warm);
+  bloomK = 0.28;
+}
+
 function buildStudio() {
   scene.background = new THREE.Color(0x120c2a);
   box(50, 0.4, 30, mat(0x1b1535), 0, -0.2, -2); box(9, 0.05, 6, mat(0x3a2a7a), 1.5, 0.03, 3.5, scene, { cast: false });
@@ -341,10 +378,10 @@ function buildStudio() {
   const blue = new THREE.PointLight(0x4f9bff, 2.0, 14, 1.4); blue.position.set(9, 4, 3); scene.add(blue);
   bloomK = 0.42;
 }
-({ night: buildNight, office: buildOffice, kitchen: buildKitchen, studio: buildStudio })[SETN]();
+({ night: buildNight, office: buildOffice, kitchen: buildKitchen, studio: buildStudio, quiosque: buildQuiosque })[SETN]();
 
 // partículas flutuantes (poeira/brasas): ficam desfocadas e dão profundidade
-const PARTS = []; { const r = rng(21), col = SETN === "night" ? 0xffc477 : SETN === "kitchen" ? 0xffe2a8 : 0xffffff, mm = glowMat(col, SETN === "office" ? 0.9 : 1.8);
+const PARTS = []; { const r = rng(21), col = SETN === "night" ? 0xffc477 : SETN === "kitchen" ? 0xffe2a8 : SETN === "quiosque" ? 0xffd9a0 : 0xffffff, mm = glowMat(col, SETN === "office" ? 0.9 : 1.8);
   for (let i = 0; i < (SETN === "office" ? 36 : 56); i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 0.07), mm); const p = { m, x: -7 + r() * 16, y: 1.6 + r() * 5.4, z: -2 + r() * 11, ph: r() * 6.28, sp: 0.15 + r() * 0.25 }; m.position.set(p.x, p.y, p.z); scene.add(m); PARTS.push(p); } }
 
 // ---------- tela do notebook (terminal ou arquivo markdown) ----------
@@ -397,6 +434,7 @@ const lerp = (a, b, t) => a + (b - a) * t, clamp = (x, a = 0, b = 1) => Math.min
 const rotY = (v, a) => V(v.x * Math.cos(a) + v.z * Math.sin(a), v.y, -v.x * Math.sin(a) + v.z * Math.cos(a));
 function worldOf(obj, off = V(0, 0, 0)) { obj.updateWorldMatrix(true, false); return off.clone().applyMatrix4(obj.matrixWorld); }
 scene.updateMatrixWorld(true);
+const CNORM = new THREE.Vector3(1, 0, 0).transformDirection(C.body.matrixWorld).setY(0).normalize(), CSYM = worldOf(C.sym, V(0, 0, 0));
 const REST = { uh: worldOf(U.head), mh: worldOf(M.body, V(0.1, 1.35, 0)), ch: worldOf(C.body, V(0, 1.55, 0)), sc: worldOf(lapGroup, V(0.62, 0.55, 0)) };
 const fwdOf = g => V(Math.cos(g.rotation.y), 0, -Math.sin(g.rotation.y));
 const FU = fwdOf(user), FM = fwdOf(mascot), FC = fwdOf(comp);
@@ -405,7 +443,7 @@ function shotFor(sh, k) {
   let pos, look, fov = 36, ap = 0.05; const a = sh.a || 0;
   if (sh.name === "cuUser") { const d = lerp(4.5, 4.0, k); pos = REST.uh.clone().addScaledVector(rotY(FU, a), d).add(V(0, 0.3, 0)); look = REST.uh.clone().add(V(0, 0.55, 0)); ap = 0.12; }
   else if (sh.name === "cuMascot") { const d = lerp(5.8, 5.2, k); pos = REST.mh.clone().addScaledVector(rotY(FM, a), d).add(V(0, 0.4, 0)); look = REST.mh.clone().add(V(0, 0.35, 0)); ap = 0.10; }
-  else if (sh.name === "cuComp") { const d = lerp(8.6, 7.8, k); pos = REST.ch.clone().addScaledVector(rotY(FC, a), d).add(V(0, 0.9, 0)); look = REST.ch.clone().add(V(0, 0.75, 0)); ap = 0.08; }
+  else if (sh.name === "cuComp") { const d = lerp(10.5, 9.7, k); pos = CSYM.clone().addScaledVector(rotY(CNORM, 0.95), d).add(V(0, 0.9, 0)); look = REST.ch.clone().add(V(0, 0.2, 0.0)); ap = 0.08; }
   else if (sh.name === "screen") { const d = lerp(4.3, 3.8, k), aa = sh.a || 0.35; pos = REST.sc.clone().addScaledVector(rotY(FU, aa * 1.2), -d * 0.95).add(V(0, 0.45 + k * 0.1, 0)); look = REST.sc.clone().add(V(0, 0.04, 0)); fov = 28; ap = 0.09; }
   else if (sh.name === "three") { pos = V(lerp(2.9, 2.7, k), 4.4, lerp(21, 20, k)); look = V(2.9, 3.2, 0); fov = 48; ap = 0.03; }
   else if (sh.name === "two") { pos = V(lerp(1.4, 1.2, k), 3.8, lerp(12, 11, k)); look = V(1.1, 3.2, 0); fov = 48; ap = 0.03; }
@@ -470,7 +508,7 @@ window.setT = function (t) {
   if (ln.screen) drawScreen(ln.screen, clamp((t - ln.screen.cut) / ln.screen.seg), t); else drawScreen({ events: [] }, 0, t);
   const sh = shotFor(ln.shot, k), screenShot = ln.shot.name === "screen";
   user.children.forEach(c => c.visible = !screenShot || c === lapGroup);
-  camera.position.copy(sh.pos); camera.fov = sh.fov; camera.up.set(0, 1, 0); camera.updateProjectionMatrix(); camera.lookAt(sh.look);
+  camera.position.copy(sh.pos); camera.fov = sh.fov; camera.up.set(0, 1, 0); camera.updateProjectionMatrix(); camera.lookAt(sh.look); if (HAS_COMP) { { const dv = camera.position.clone().sub(REST.ch).setY(0).normalize(); C.body.updateWorldMatrix(true, false); C.sym.position.copy(C.body.worldToLocal(REST.ch.clone().addScaledVector(dv, 2.55).add(V(0, 0.15, 0)))); C.sym.lookAt(camera.position); C.sym.scale.setScalar(1.2); } }
   const dist = camera.position.distanceTo(sh.look);
   bokeh.uniforms.focus.value = dist; bokeh.uniforms.aperture.value = sh.ap / Math.max(1, dist) * 0.3; bokeh.uniforms.maxblur.value = 0.011;
   const ins = updateInsert(ln, act, t);

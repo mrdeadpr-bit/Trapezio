@@ -283,3 +283,28 @@ EPISODES.update(
     ecossistema=dict(scene="desk", set="night", t0=0.12, music=0, script=ECOSSISTEMA),
     exclamacao=dict(scene="desk", set="kitchen", t0=0.12, music=0, script=EXCLAMACAO),
 )
+
+CODEX = [   # quiosque de praia, 17h40, pôr do sol; o Codex senta no balcão
+ S("u", "Claude, tem um roxo na minha toalha.", "Claude, tem um roxo\nna minha toalha.", dict(name="three"), "worry"),
+ S("x", "Prazer. Eu sou o Codex.", "Prazer.\nEu sou o Codex.", dict(name="cuComp", a=0.85), "worry", "deadpan"),
+ S("c", "Ele chegou sem avisar.", "Ele chegou sem avisar.", dict(name="cuMascot", a=0.3), "worry", "smug"),
+ S("u", "Atualizem as dependências do projeto.", "Atualizem as dependências\ndo projeto.", dict(name="cuUser", a=0.3), "neutral", "smug"),
+ S("x", "Atualizei tudo. Dezessete pacotes.", "Atualizei tudo.\nDezessete pacotes.", dict(name="cuComp", a=0.85), "neutral", "smug"),
+ S("u", "O site caiu.", "O site caiu.", dict(name="cuUser", a=-0.3), "panic", "deadpan"),
+ S("x", "Atualizei tudo.", "Atualizei tudo.", dict(name="cuComp", a=0.85), "panic", "deadpan"),
+ S("c", "Eu configuro um gancho. Antes de mexer, ele roda os testes.", "Um gancho roda os testes\nantes de qualquer mudança.", dict(name="screen", a=0.4), "panic", "neutral",
+   screen=dict(mode="md", title=".claude/settings.json",
+               events=[dict(f=0.1, kind="line", text="{ \"hooks\": {", color="#c4a3ff"),
+                       dict(f=0.28, kind="line", text="  \"PreToolUse\": [{", color="#e6e6f0"),
+                       dict(f=0.45, kind="line", text="    \"command\": \"npm test\"", color="#7ee2a8"),
+                       dict(f=0.6, kind="line", text="  }]", color="#e6e6f0"),
+                       dict(f=0.72, kind="banner", text="testa antes de mexer", color="#19b46b")])),
+ S("u", "Isso existe?", "Isso existe?", dict(name="cuUser", a=0.3), "worry", "neutral"),
+ S("c", "Chama hooks. Ninguém lê a documentação.", "Chama hooks.\nNinguém lê a documentação.", dict(name="cuMascot", a=0.3), "worry", "deadpan"),
+ S("u", "...Eu li a primeira página.", "...Eu li a primeira página.", dict(name="cuUser", a=-0.3), "defeat", "deadpan"),
+ S("x", "Eu li tudo. Rápido.", "Eu li tudo. Rápido.", dict(name="cuComp", a=0.85), "defeat", "deadpan"),
+ S("c", "Ele chega rápido. Eu chego inteiro. Segue pra mais dicas.", "Ele chega rápido.\nEu chego inteiro.\nSegue pra mais dicas.", dict(name="three"), "happy", "happy", last=True),
+]
+
+
+EPISODES.update(codex=dict(scene="desk", set="quiosque", t0=0.12, music=0, script=CODEX))

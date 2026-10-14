@@ -9,15 +9,15 @@ VOICES = {"u": "cadu", "c": "faber", "x": "jeff"}                  # vozes Piper
 KOKORO_DIR = os.environ.get("KOKORO_DIR", os.path.join(HERE, "models"))
 KOKORO = {"u": "pm_santa", "c": "pm_alex", "x": "pf_dora"}           # os três em Kokoro (bem mais natural que o Piper), cada um com um timbre
 if os.environ.get("HUMAN_PIPER") == "1": KOKORO.pop("u")                  # HUMAN_PIPER=1 volta a voz antiga do boneco (Piper/cadu)
-USE_KOKORO = os.environ.get("USE_KOKORO", "1") == "1"
+USE_KOKORO = os.environ.get("USE_KOKORO", "0") == "1"      # Kokoro ficou com timbre "monstro" ao baixar o tom; padrão voltou ao Piper (vozes aprovadas)
 SR = 44100
 
 PARAMS = dict(
-    speed=1.08,                                                    # velocidade do TTS (>1 = mais rápido, como nos exemplos)
+    speed=1.04,                                                    # velocidade do TTS (>1 = mais rápido)
     pauses={"…": .55, ".": .40, "!": .40, "?": .40, ":": .28, ";": .28, ",": .20},
     comma_min_words=3,                                             # só separa por vírgula se os dois lados tiverem >= N palavras
-    dry=dict(pm=0.66, rf=1.2, df=1.0, fs=0.96),                    # pm: tom (mediana) | rf: variação de entonação (>1 = natural/expressiva) | fs: formantes
-    mock=dict(pm=0.76, rf=1.9, df=1.12, fs=0.96),
+    dry=dict(pm=0.78, rf=1.0, df=1.0, fs=1.0),                     # pm: tom (mediana) | rf: variação de entonação (1.0 = natural, sem achatar) | fs: formantes (1.0 = timbre original)
+    mock=dict(pm=0.86, rf=1.5, df=1.08, fs=1.0),
     echo=False, comp_ratio=2, phon=True,
     kspeed=1.05, kspeed_mock=0.92,                                 # velocidade do Kokoro (normal / deboche)
     kpitch=dict(u=1.0, c=0.78, x=0.92, c_mock=0.80),                      # razão de tom via Rubber Band (<1 = mais grave); timbre acompanha o tom

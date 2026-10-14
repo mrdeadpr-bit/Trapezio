@@ -13,6 +13,15 @@ Tudo roda com código local. O que o Claude Desktop precisa ter:
 Não precisa de: Creative Claw, ElevenLabs, nem skills de vídeo/imagem. O Creative Claw falhou ao conectar nesta sessão e gasta créditos. Só use com a sua autorização.
 Skills úteis, mas opcionais: nenhuma. Os roteiros ficam em `episodes.py`.
 
+## Antes do prompt (o que deu errado no Desktop)
+
+O Desktop respondeu que não havia repositório nem modelos, porque a sessão dele não tinha o projeto. Faça isto primeiro:
+
+1. Abra uma sessão Code com a pasta vazia e cole: `Clone https://github.com/mrdeadpr-bit/Trapezio, entre na branch claude/amazing-volta-bnn5yd, vá em video/ e rode ./setup.sh`.
+2. Só depois cole o prompt abaixo.
+3. Se ele oferecer o Creative Claw, recuse: o pipeline não usa nenhum serviço externo.
+4. Se ele pedir um vídeo para "analisar", ignore: o pedido é produzir pelo código do repositório, não replicar um vídeo.
+
 ## Prompt
 
 ```

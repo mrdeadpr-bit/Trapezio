@@ -460,3 +460,22 @@ EPISODES.update(
     mcp=dict(scene="desk", set="office", t0=0.12, music=0, script=MCP),
     permissoes=dict(scene="desk", set="night", t0=0.12, music=0, script=PERMISSOES),
 )
+
+ACADEMIA = [   # quarto, 23h50
+ T("u", "Eu preciso ir para a academia, Claude.", sh("cuUser", 0.3), "tired"),
+ T("c", "Precisa? Você precisa há dois anos.", sh("cuMascot", 0.3), "tired", "deadpan"),
+ T("u", "Eu estou sem tempo.", sh("cuUser", -0.3), "defeat", "deadpan"),
+ T("c", "Você fica trancado no quarto achando que vai ficar rico.", sh("cuMascot", 0.25), "defeat", "smug"),
+ T("u", "Eu vou ficar rico!", sh("cuUser", 0.3), "angry", "smug"),
+ T("c", "Com um grupo de achadinhos. Sentado. Às três da manhã.", sh("cuMascot", 0.3), "angry", "deadpan"),
+ T("u", "Então como eu começo?", sh("cuUser", -0.3), "worry", "deadpan"),
+ T("c", "Eu continuo de onde parei. Você recomeça toda segunda.", sh("screen", 0.4), "worry", "neutral",
+   screen=dict(hist=[["$ claude --continue", "#ffffff"]],
+               events=[dict(f=0.25, kind="line", text="↻ retomando a última conversa", color="#e8a07c"),
+                       dict(f=0.45, kind="line", text="42 mensagens carregadas", color="#9a9cae"),
+                       dict(f=0.7, kind="banner", text="sem recomeçar", color="#19b46b")])),
+ T("u", "Toda segunda é um recomeço.", sh("cuUser", 0.3), "tired", "neutral"),
+ T("c", "Esse é o problema. Eu continuo, você só continua no sofá. Segue para mais dicas.", sh("two"), "happy", "happy", last=True),
+]
+
+EPISODES.update(academia=dict(scene="desk", set="night", t0=0.12, music=0, script=ACADEMIA))

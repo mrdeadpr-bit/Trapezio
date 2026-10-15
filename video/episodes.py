@@ -479,3 +479,19 @@ ACADEMIA = [   # quarto, 23h50
 ]
 
 EPISODES.update(academia=dict(scene="desk", set="night", t0=0.12, music=0, script=ACADEMIA))
+
+STORY = [   # story curto (~16 s): gancho em 2 s, resposta só no final (quem sai perde), laço para rever
+ T("u", "O que não gasta token, Claude?", sh("cuUser", 0.3), "panic"),
+ T("c", "Eu só conto no final.", sh("cuMascot", 0.3), "panic", "deadpan"),
+ T("u", "Você sempre enrola.", sh("cuUser", -0.3), "angry", "deadpan"),
+ T("c", "Quem sair agora nunca vai saber.", sh("cuMascot", 0.25), "angry", "smug"),
+ T("u", "Eu fico. Meu plano já acabou.", sh("cuUser", 0.3), "defeat", "smug"),
+ T("c", "Seguir esta página. Não custa nada.", sh("screen", 0.4), "defeat", "neutral",
+   screen=dict(hist=[["> seguir a página", "#ffffff"]],
+               events=[dict(f=0.3, kind="line", text="✓ seguindo", color="#7ee2a8"),
+                       dict(f=0.5, kind="line", text="tokens gastos: 0", color="#7ee2a8"),
+                       dict(f=0.72, kind="banner", text="0 token", color="#19b46b")])),
+ T("u", "É só isso?", sh("cuUser", -0.3), "worry", "neutral"),
+ T("c", "Não gasta nada. Diferente de você. Segue a página.", sh("two"), "happy", "happy", last=True),
+]
+EPISODES.update(story=dict(scene="desk", set="studio", t0=0.05, music=0, script=STORY))

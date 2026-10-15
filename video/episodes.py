@@ -495,3 +495,22 @@ STORY = [   # story curto (~16 s): gancho em 2 s, resposta só no final (quem sa
  T("c", "Não gasta nada. Diferente de você. Segue a gente.", sh("two"), "happy", "happy", last=True),
 ]
 EPISODES.update(story=dict(scene="desk", set="studio", t0=0.05, music=0, script=STORY))
+
+EMPREGO = [   # cozinha, sábado 06h40; dica nova: ultrathink (pensar mais)
+ T("u", "Devo largar o emprego, Claude?", sh("cuUser", 0.3), "panic"),
+ T("c", "Para o grupo de achadinhos?", sh("cuMascot", 0.3), "panic", "deadpan"),
+ T("u", "É um bom grupo.", sh("cuUser", -0.3), "angry", "deadpan"),
+ T("c", "Tem quarenta e dois membros. Trinta são sua família.", sh("cuMascot", 0.25), "angry", "smug"),
+ T("u", "Então é um sim?", sh("cuUser", 0.3), "defeat", "smug"),
+ T("c", "Para decisão grande, mande pensar mais fundo. A palavra está na tela.", sh("screen", 0.4), "defeat", "neutral",
+   screen=dict(hist=[["> ultrathink: devo largar o emprego?", "#ffffff"]],
+               events=[dict(f=0.25, kind="line", text="✻ pensando por 14s...", color="#e8a07c"),
+                       dict(f=0.42, kind="line", text="• 42 membros, 30 são parentes", color="#9a9cae"),
+                       dict(f=0.58, kind="line", text="• renda do grupo: R$ 0", color="#e5484d"),
+                       dict(f=0.74, kind="banner", text="pensou fundo", color="#7c4dff")])),
+ T("u", "E se eu largar mesmo assim?", sh("cuUser", -0.3), "worry", "neutral"),
+ T("c", "Aí eu penso em um plano B para você.", sh("cuMascot", 0.3), "worry", "deadpan"),
+ T("u", "Qual é o plano B?", sh("cuUser", 0.3), "tired", "deadpan"),
+ T("c", "Voltar ao emprego. Segue para mais dicas.", sh("two"), "happy", "happy", last=True),
+]
+EPISODES.update(emprego=dict(scene="desk", set="kitchen", t0=0.12, music=0, script=EMPREGO))

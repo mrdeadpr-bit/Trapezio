@@ -514,3 +514,43 @@ EMPREGO = [   # cozinha, sábado 06h40; dica nova: ultrathink (pensar mais)
  T("c", "Voltar ao emprego. Segue para mais dicas.", sh("two"), "happy", "happy", last=True),
 ]
 EPISODES.update(emprego=dict(scene="desk", set="kitchen", t0=0.12, music=0, script=EMPREGO))
+
+def shz(name, a=0.3, z=1.0): return dict(name=name, a=a, z=z)
+OPROBLEMA = [   # sala, 23h10; visual v2 (desk_v2.html); reels no celular
+ T("u", "A inteligência artificial não entende o que eu peço, Claude.", shz("cuUser", 0.3, 0.8), "tired"),
+ T("c", "Todo mundo faz assim.", shz("cuMascot", 0.3, 0.85), "tired", "deadpan"),
+ T("u", "Eu escrevo certinho!", shz("cuUser", -0.3, 0.7), "angry", "deadpan"),
+ T("c", "Você escreveu: faz um negócio aí.", shz("cuMascot", 0.25, 0.8), "angry", "smug"),
+ T("u", "Era um bom negócio.", shz("cuUser", 0.3, 0.75), "defeat", "smug"),
+ T("c", "O problema é o prompt.", shz("cuMascot", 0.3, 0.7), "defeat", "deadpan", say="O problema é o prômpiti."),
+ T("u", "Vou ver o que os outros fazem.", shz("cuUser", -0.3, 0.85), "worry", "deadpan"),
+ T("r1", "Claude, faz um negócio aí.", shz("cuUser", 0.3), "worry", "neutral", insert=dict(kind="reel", n=1, handle="@outro.perfil", likes="12,4 mil", first=True)),
+ T("c", "Eu não leio pensamentos.", shz("cuUser", 0.3), "worry", "neutral", insert=dict(kind="reel", n=1, handle="@outro.perfil", likes="12,4 mil")),
+ T("r2", "Cinco skills que ninguém te mostra para instalar no Claude.", shz("cuUser", 0.3), "worry", "neutral", insert=dict(kind="reel", n=2, handle="@influ.ia", likes="87 mil", first=True)),
+ T("r3", "A inteligência artificial vai acabar com o emprego de todo mundo.", shz("cuUser", 0.3), "worry", "neutral", insert=dict(kind="reel", n=3, handle="@noticia.tech", likes="203 mil", first=True)),
+ T("u", "Todo mundo fala. Ninguém explica.", shz("cuUser", 0.3, 0.75), "tired", "deadpan"),
+ T("c", "Se você não sabe escrever, eu não posso fazer nada.", shz("cuMascot", 0.25, 0.75), "tired", "smug"),
+ T("u", "Então o problema sou eu?", shz("cuUser", -0.3, 0.7), "defeat", "smug"),
+ T("c", "O problema é o prompt. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True, say="O problema é o prômpiti. Segue a gente."),
+]
+EPISODES.update(oproblema=dict(scene="desk_v2", set="sala", t0=0.12, music=0, script=OPROBLEMA))
+
+ACADEMIA2 = [   # quarto, 23h50, visual v2; o comando aparece grande e o Claude fala o que digitar
+ T("u", "Eu preciso ir para a academia, Claude.", shz("cuUser", 0.3, 0.8), "tired"),
+ T("c", "Precisa? Você precisa há dois anos.", shz("cuMascot", 0.3, 0.85), "tired", "deadpan"),
+ T("u", "Eu estou sem tempo.", shz("cuUser", -0.3, 0.7), "defeat", "deadpan"),
+ T("c", "Você fica trancado no quarto achando que vai ficar rico.", shz("cuMascot", 0.25, 0.8), "defeat", "smug"),
+ T("u", "Eu vou ficar rico!", shz("cuUser", 0.3, 0.75), "angry", "smug"),
+ T("c", "Com um grupo de achadinhos. Sentado. Às três da manhã.", shz("cuMascot", 0.3, 0.7), "angry", "deadpan"),
+ T("u", "Então como eu começo?", shz("cuUser", -0.3, 0.75), "worry", "deadpan"),
+ T("c", "Digita: claude. Traço, traço. Continue.", shz("screen", 0.4), "worry", "neutral",
+   screen=dict(hist=[], events=[dict(f=0.08, kind="cmd", text="claude --continue", dur=0.7, desc="continua a última conversa")])),
+ T("c", "Ele retoma a conversa de onde você parou.", shz("screen", -0.4), "worry", "neutral",
+   screen=dict(hist=[["$ claude --continue", "#ffffff"]],
+               events=[dict(f=0.25, kind="line", text="↻ retomando a última conversa", color="#e8a07c"),
+                       dict(f=0.5, kind="line", text="42 mensagens carregadas", color="#9a9cae"),
+                       dict(f=0.75, kind="banner", text="sem recomeçar", color="#19b46b")])),
+ T("u", "Toda segunda é um recomeço.", shz("cuUser", 0.3, 0.75), "tired", "neutral"),
+ T("c", "Esse é o problema. Eu continuo, você só continua no sofá. Segue para mais dicas.", shz("two", 0.3, 1.0), "happy", "happy", last=True),
+]
+EPISODES.update(academia2=dict(scene="desk_v2", set="night", t0=0.12, music=0, script=ACADEMIA2))

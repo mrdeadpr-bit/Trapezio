@@ -5,7 +5,7 @@ import numpy as np, soundfile as sf
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PIPER_DIR = os.environ.get("PIPER_DIR", os.path.join(HERE, "models"))
-VOICES = {"u": "cadu", "c": "faber", "x": "cadu"}                  # vozes Piper (boneco usa cadu)
+VOICES = {"u": "cadu", "c": "faber", "x": "cadu", "r1": "jeff", "r2": "cadu", "r3": "faber"}   # r1..r3 = vozes dos reels (outros perfis)                  # vozes Piper (boneco usa cadu)
 KOKORO_DIR = os.environ.get("KOKORO_DIR", os.path.join(HERE, "models"))
 KOKORO = {"u": "pm_santa", "c": "pm_alex", "x": "pf_dora"}           # os três em Kokoro (bem mais natural que o Piper), cada um com um timbre
 if os.environ.get("HUMAN_PIPER") == "1": KOKORO.pop("u")                  # HUMAN_PIPER=1 volta a voz antiga do boneco (Piper/cadu)
@@ -35,7 +35,7 @@ PHON = [
     (r"\bSKILL ponto M D\b", "skill ponto ême dê"), (r"\bCowork\b", "cô-uórk"), (r"\bWhatsApp\b", "uótsapi"),
     (r"\bDownloads\b", "daunlôdis"), (r"\bPDFs\b", "pê dê éfes"), (r"\bControl V\b", "contról vê"),
     (r"\bShift Tab\b", "xifti tábi"), (r"\bclaude traço p\b", "claude traço pê"), (r"\bprompt\b", "prômpiti"),
-    (r"\blog\b", "lógui"), (r"\bcompact\b", "compáct"), (r"\bAPI\b", "a pê í"), (r"\bban\b", "bã"), (r"\bCodex\b", "Códex"),
+    (r"\blog\b", "lógui"), (r"\bcompact\b", "compáct"), (r"\bAPI\b", "a pê í"), (r"\bban\b", "bã"), (r"\bCodex\b", "Códex"), (r"\bskills\b", "isquils"), (r"\bIA\b", "í á"),
 ]
 
 _kok = None
@@ -92,7 +92,7 @@ def speak(who, text, P, tone="norm"):
             idx = np.where(np.abs(x) > 0.004)[0]
             if len(idx): x = x[max(0, idx[0]-int(.06*sr)): idx[-1]+int(.09*sr)]
             chunks.append(x); chunks.append(np.zeros(int(pause*sr), np.float32)); continue
-        a = tts.generate(seg, sid=0, speed=(1.0 if who == "x" else P["speed"])); x = np.asarray(a.samples, np.float32); sr = a.sample_rate
+        a = tts.generate(seg, sid=0, speed=(1.0 if who in ("x", "r1", "r2", "r3") else P["speed"])); x = np.asarray(a.samples, np.float32); sr = a.sample_rate
         idx = np.where(np.abs(x) > P.get("thr", 0.004))[0]
         if len(idx): x = x[max(0, idx[0]-int(P.get("pad0", .06)*sr)): idx[-1]+int(P.get("pad1", .09)*sr)]
         chunks.append(x); chunks.append(np.zeros(int(pause*sr), np.float32))
@@ -144,7 +144,7 @@ def synth_line(who, text, tone, P=PARAMS, workdir=None):
         raw, out = os.path.join(workdir, "raw.wav"), os.path.join(workdir, "out.wav")
         sf.write(raw, x, sr); finish_legacy(raw, out, who)
         a, _ = sf.read(out, dtype="float32"); return a
-    if who == "x": tone = "fem"
+    if who in ("x", "r2"): tone = "fem"
     x, sr = speak(who, text, P, tone); x = shape(x, sr, tone, P, who)
     raw, out = os.path.join(workdir, "raw.wav"), os.path.join(workdir, "out.wav")
     sf.write(raw, x, sr); finish(raw, out, who, P)

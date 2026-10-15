@@ -16,6 +16,27 @@
   .phone .msgs { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 18px; justify-content: flex-start; }
   .bub { max-width: 80%; padding: 18px 22px; border-radius: 22px; font-size: 30px; line-height: 1.25; color: #111; opacity: 0; transform: translateY(14px); transition: none; }
   .bub.in { background: #fff; align-self: flex-start; } .bub.out { background: #d9fdd3; align-self: flex-end; }
+  .ig { width: 560px; height: 1060px; border-radius: 74px; background: #08080c; padding: 20px; box-shadow: 0 30px 80px rgba(0,0,0,.65); position: relative; }
+  .ig .scr { width: 100%; height: 100%; border-radius: 54px; overflow: hidden; position: relative; background: #111; font-family: "Inter", "DejaVu Sans", sans-serif; color: #fff; }
+  .reel { position: absolute; inset: 0; }
+  .rtop { position: absolute; top: 26px; left: 0; right: 0; text-align: center; font-weight: 800; font-size: 32px; z-index: 6; text-shadow: 0 2px 10px #0009; }
+  .rside { position: absolute; right: 18px; bottom: 200px; display: flex; flex-direction: column; gap: 24px; align-items: center; font-size: 22px; font-weight: 700; z-index: 6; text-shadow: 0 2px 8px #0009; }
+  .rside i { font-style: normal; font-size: 46px; display: block; text-align: center; }
+  .rbot { position: absolute; left: 24px; right: 110px; bottom: 36px; z-index: 6; font-size: 25px; line-height: 1.25; text-shadow: 0 2px 8px #000b; }
+  .rbot b { font-size: 29px; } .rbot .seg { display: inline-block; border: 2px solid #fff; border-radius: 10px; padding: 2px 14px; margin-left: 12px; font-size: 22px; }
+  .rcap { position: absolute; left: 28px; right: 28px; bottom: 175px; text-align: center; font-weight: 800; font-size: 37px; line-height: 1.15; text-shadow: 0 3px 12px #000c; z-index: 5; white-space: pre-line; }
+  .rbig { position: absolute; left: 24px; right: 24px; top: 120px; text-align: center; font-weight: 900; font-size: 50px; line-height: 1.05; z-index: 5; text-shadow: 0 4px 14px #0007; white-space: pre-line; }
+  .bk { position: absolute; }
+  .bhead { position: absolute; width: 170px; height: 170px; border-radius: 28px; background: #f3d3bd; box-shadow: inset -10px -10px 0 #0001; }
+  .bhair { position: absolute; left: -8px; top: -14px; width: 186px; height: 62px; border-radius: 26px; background: #2a1812; }
+  .bspike { position: absolute; width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 46px solid #6e402a; }
+  .beye { position: absolute; top: 76px; width: 20px; height: 30px; background: #0e0e14; border-radius: 4px; } .beye::after { content: ""; position: absolute; right: 2px; top: 4px; width: 7px; height: 7px; background: #fff; }
+  .bbrow { position: absolute; top: 58px; width: 42px; height: 10px; background: #2b1d18; }
+  .bnose { position: absolute; left: 74px; top: 98px; width: 22px; height: 28px; border-radius: 6px; background: #f0cdb4; }
+  .rmouth { position: absolute; left: 48px; width: 74px; top: 138px; height: 8px; background: #4a1a20; border-radius: 4px; }
+  .bbody { position: absolute; border-radius: 30px; }
+  .mas { position: absolute; width: 190px; height: 160px; border-radius: 30px; background: #e8744c; }
+  .mas .e { position: absolute; top: 52px; width: 20px; height: 34px; background: #17101a; border-radius: 4px; }
   #eco { width: 960px; height: 1100px; }
   #eco text { font-family: "Inter", "DejaVu Sans", sans-serif; font-weight: 700; }
 </style>
@@ -108,7 +129,7 @@ function drawMascotFace(m, blink) {
   const g = MF.g; px(g, MASC, 0, 0, 24, 16);
   const h = blink ? 1 : (m.big ? 5 : 4), y0 = blink ? 7 : (m.big ? 4 : 5);
   [4, 18].forEach(x0 => {
-    px(g, "#17101a", x0, y0, 2, h);
+    px(g, "#17101a", x0, y0, 2, h); if (!blink && h > 2) px(g, "#ffffff", x0 + 1, y0 + 1, 1, 1);
     if (m.lid && !blink) px(g, MASC, x0, y0, 2, m.lid);
   });
   if (m.happy) [4, 18].forEach(x0 => { px(g, MASC, x0 - 1, 4, 4, 5); px(g, "#17101a", x0, 6, 2, 1); px(g, "#17101a", x0 - 1, 7, 1, 1); px(g, "#17101a", x0 + 2, 7, 1, 1); });
@@ -120,7 +141,7 @@ function drawMascotFace(m, blink) {
 const HOOD = 0x356f73, HOOD_D = 0x2a5a5e, JEANS = 0x20263a;
 const user = new THREE.Group(); user.position.set(-1.1, 1.5, 0.2); user.rotation.y = -0.38; scene.add(user);
 const U = {};
-U.torso = box(0.85, 1.45, 1.4, mat(HOOD, { vari: 0.16, seed: 51 }), 0, 0.77, 0, user, { r: 0.08 });
+U.torso = box(0.85, 1.45, 1.4, mat(HOOD, { vari: 0.16, seed: 51 }), 0, 0.77, 0, user, { r: 0.14 });
 box(0.88, 0.24, 1.42, mat(HOOD_D, { vari: 0.16, seed: 52 }), 0, 0.12, 0, user);
 box(0.07, 0.6, 0.07, mat(0xf0f0f0, { plain: true }), 0.45, 1.0, -0.13, user); box(0.07, 0.6, 0.07, mat(0xf0f0f0, { plain: true }), 0.45, 1.0, 0.13, user);
 box(0.3, 0.95, 0.95, mat(HOOD_D, { vari: 0.16, seed: 53 }), -0.22, 1.3, 0, user, { cast: false });
@@ -129,7 +150,7 @@ const hairM = new THREE.MeshStandardMaterial({ color: 0x08080a, emissive: 0x1717
 const sideM = mat(0xf3d3bd, { seed: 63, paint: (g) => { g.fillStyle = "#e0b095"; g.fillRect(8, 8, 3, 3); } });
 const faceM = new THREE.MeshStandardMaterial({ map: UF.t, roughness: 0.9 });
 const headMats = [faceM, hairM, hairM, skinM, sideM, sideM];  // +x rosto, -x nuca, +y topo, -y, ±z lados
-box(1.1, 1.1, 1.1, headMats, 0, 0, 0, U.head, { r: 0.07 });
+box(1.1, 1.1, 1.1, headMats, 0, 0, 0, U.head, { r: 0.14 });
 const HAIR_D = new THREE.MeshStandardMaterial({ color: 0x2a1812, roughness: 0.85 }), HAIR_B = new THREE.MeshStandardMaterial({ color: 0x6e402a, roughness: 0.85 });
 box(1.22, 0.36, 1.22, HAIR_D, -0.02, 0.62, 0, U.head, { r: 0.08 });                         // topete escuro (como na referência)
 box(0.16, 0.7, 1.2, HAIR_D, -0.58, 0.1, 0, U.head, { r: 0.05, cast: false });                // nuca
@@ -169,9 +190,9 @@ const mascot = new THREE.Group(); mascot.position.set(3.2, 2.38, -0.15); mascot.
 const M = {}; M.body = new THREE.Group(); mascot.add(M.body);
 const orange = mat(0xe8744c, { emissive: 0.2 });
 M.faceMat = new THREE.MeshStandardMaterial({ map: MF.t, roughness: 0.9, emissive: new THREE.Color(0xffffff), emissiveMap: MF.t, emissiveIntensity: 0.2 });
-box(1.45, 1.35, 2.1, [M.faceMat, orange, orange, orange, orange, orange], 0, 1.35, 0, M.body, { r: 0.07 });
-M.legs = [[-0.5, -0.7], [-0.5, 0.7], [0.45, -0.7], [0.45, 0.7]].map(p => box(0.36, 0.7, 0.36, mat(0xf08a60), p[0], 0.35, p[1], mascot));
-M.armR = box(0.3, 0.6, 0.3, orange, 0.15, 1.25, 1.2, M.body); M.armL = box(0.3, 0.6, 0.3, orange, 0.15, 1.25, -1.2, M.body);
+box(1.45, 1.35, 2.1, [M.faceMat, orange, orange, orange, orange, orange], 0, 1.35, 0, M.body, { r: 0.16 });
+M.legs = [[-0.5, -0.7], [-0.5, 0.7], [0.45, -0.7], [0.45, 0.7]].map(p => box(0.36, 0.7, 0.36, mat(0xf08a60), p[0], 0.35, p[1], mascot, { r: 0.08 }));
+M.armR = box(0.3, 0.6, 0.3, orange, 0.15, 1.25, 1.2, M.body, { r: 0.1 }); M.armL = box(0.3, 0.6, 0.3, orange, 0.15, 1.25, -1.2, M.body, { r: 0.1 });
 
 // ---------- concorrente: Codex (nuvem de cristal low-poly azul/roxo com ">_" grande) ----------
 const comp = new THREE.Group(); comp.position.set(6.0, 2.38, 0.0); comp.rotation.y = Math.PI + 0.72; comp.visible = HAS_COMP; scene.add(comp);
@@ -337,6 +358,38 @@ function buildQuiosque() {                                                     /
   bloomK = 0.28;
 }
 
+
+function buildSala() {                                                          // sala de estar à noite, luz quente de abajur
+  scene.background = new THREE.Color(0x2a1f2e);
+  box(50, 0.4, 30, mat(0x9c6b45), 0, -0.2, -2); for (let i = -8; i < 9; i++) box(0.06, 0.02, 30, mat(0x7e5233), i * 1.6, 0.01, -2, scene, { cast: false });
+  box(9, 0.05, 6, mat(0xc4574a), 1.5, 0.03, 3.5, scene, { cast: false }); box(9.4, 0.04, 6.4, mat(0xe8c9a0), 1.5, 0.02, 3.5, scene, { cast: false });
+  box(52, 17, 0.4, mat(0xe3cdb0), 0, 8.5, -4.7); box(0.4, 17, 30, mat(0xd9c2a2), -11, 8.5, -2); box(52, 0.5, 0.3, mat(0xfff4e2), 0, 0.25, -4.4, scene, { cast: false });
+  const skyM = new THREE.MeshBasicMaterial({ color: 0x1b3560 }); box(6.4, 5.2, 0.12, skyM, 6.6, 5.6, -4.45, scene, { cast: false, receive: false });
+  box(0.9, 0.9, 0.14, glowMat(0xfff2c8, 1.3), 8.4, 6.8, -4.38, scene, { cast: false });                                                           // lua
+  [[6.6, 3.0, 6.8, 0.3], [6.6, 8.2, 6.8, 0.3], [3.3, 5.6, 0.3, 5.5], [9.9, 5.6, 0.3, 5.5], [6.6, 5.6, 0.16, 5.5]].forEach(a => box(a[2], a[3], 0.3, mat(0xf6efe3), a[0], a[1], -4.35));
+  box(4.8, 2.7, 0.2, mat(0x111116), -7.6, 4.6, -4.35); box(4.4, 2.3, 0.05, mat(0x1a1c26, { rough: 0.2 }), -7.6, 4.6, -4.22, scene, { cast: false });   // TV desligada
+  box(5.2, 1.0, 3.0, mat(0x3f6a5a), -2.6, 1.0, 0.2); box(0.7, 2.4, 3.0, mat(0x355a4c), -5.0, 2.0, 0.2); box(5.2, 1.6, 0.6, mat(0x355a4c), -2.6, 1.8, -1.4);   // sofá verde
+  box(1.2, 0.5, 1.0, mat(0xe8a23a), -4.2, 1.75, -0.6, scene, { cast: false });                                                                  // almofada
+  box(8.6, 0.2, 3.0, mat(0x6b4a30), 5.6, 2.28, 0.0); [[2.0, -1.2], [2.0, 1.2], [9.0, -1.2], [9.0, 1.2]].forEach(p => box(0.25, 2.2, 0.25, mat(0x4d341f), p[0], 1.1, p[1]));   // aparador
+  box(0.6, 0.15, 0.6, mat(0x15151c), 8.0, 2.45, -0.8); box(0.16, 1.1, 0.16, mat(0x15151c), 8.0, 3.0, -0.8); box(1.0, 0.8, 1.0, mat(0xffe2b0, { emissive: 1.0 }), 8.0, 3.8, -0.8);   // abajur
+  box(0.6, 0.7, 0.6, mat(0xb0623a), 1.4, 2.73, -0.9); box(0.8, 0.9, 0.8, mat(0x3f9a5a), 1.4, 3.5, -0.9);                                          // planta
+  box(0.5, 0.5, 0.5, mat(0xe9e6f2), 3.9, 2.65, 0.8); box(0.18, 0.3, 0.1, mat(0xe9e6f2), 4.2, 2.65, 0.8);                                         // caneca
+  box(1.0, 1.0, 0.3, mat(0x15151c), 3.2, 1.2, 1.0, scene, { cast: false });
+  box(0.16, 5.2, 0.16, mat(0x2a2a30), -8.0, 2.6, 1.2); box(1.3, 1.0, 1.3, mat(0xffe2b0, { emissive: 0.9 }), -8.0, 5.4, 1.2);                      // luminária de chão
+  box(4.2, 6.4, 1.4, mat(0x8a6a4a), 12.2, 3.2, -4.0); [1.5, 3.2, 4.9].forEach(y => box(3.8, 0.18, 1.3, mat(0x6a4a30), 12.2, y, -3.9));
+  ["#b3422f", "#2f8f5a", "#d9a43a", "#3a62b8", "#7a3fa8", "#d9a43a", "#b3422f"].forEach((c, i) => [1.7, 3.4, 5.1].forEach((y, j) => box(0.36, 1.1 + ((i + j) % 3) * 0.2, 1.0, mat(new THREE.Color(c)), 10.6 + i * 0.52, y + 0.62, -3.9)));
+  scene.add(new THREE.HemisphereLight(0xffd9b0, 0x6a4a38, 0.85));
+  const moon = new THREE.DirectionalLight(0x9fb4ff, 0.7); moon.position.set(-4, 11, 10); moon.target.position.set(0, 1, 0); scene.add(moon, moon.target);
+  moon.castShadow = true; moon.shadow.mapSize.set(2048, 2048); moon.shadow.radius = 5; moon.shadow.bias = -0.0003;
+  Object.assign(moon.shadow.camera, { left: -14, right: 14, top: 12, bottom: -9, near: 1, far: 48 }); moon.shadow.camera.updateProjectionMatrix();
+  const fill = new THREE.DirectionalLight(0xffe9d0, 0.7); fill.position.set(2, 6, 12); scene.add(fill);
+  const fillM = new THREE.DirectionalLight(0xffe2c0, 1.5); fillM.position.set(6, 6, 9); scene.add(fillM);
+  const lamp = new THREE.PointLight(0xffb067, 3.0, 14, 1.5); lamp.position.set(7.4, 3.8, -0.2); scene.add(lamp);
+  const lamp2 = new THREE.PointLight(0xffc27a, 2.2, 12, 1.5); lamp2.position.set(-7, 5.4, 1.6); scene.add(lamp2);
+  const rim = new THREE.DirectionalLight(0xffb878, 1.2); rim.position.set(-6, 5, -4); scene.add(rim);
+  bloomK = 0.3;
+}
+
 function buildStudio() {
   scene.background = new THREE.Color(0x120c2a);
   box(50, 0.4, 30, mat(0x1b1535), 0, -0.2, -2); box(9, 0.05, 6, mat(0x3a2a7a), 1.5, 0.03, 3.5, scene, { cast: false });
@@ -367,10 +420,10 @@ function buildStudio() {
   bloomK = 0.42;
   const rim = new THREE.DirectionalLight(0xffb878, 1.6); rim.position.set(-6, 5, -4); scene.add(rim);
 }
-({ night: buildNight, office: buildOffice, kitchen: buildKitchen, studio: buildStudio, quiosque: buildQuiosque })[SETN]();
+({ night: buildNight, office: buildOffice, kitchen: buildKitchen, studio: buildStudio, quiosque: buildQuiosque, sala: buildSala })[SETN]();
 
 // partículas flutuantes (poeira/brasas): ficam desfocadas e dão profundidade
-const PARTS = []; { const r = rng(21), col = SETN === "night" ? 0xffc477 : SETN === "kitchen" ? 0xffe2a8 : SETN === "quiosque" ? 0xffd9a0 : 0xffffff, mm = glowMat(col, SETN === "office" ? 0.9 : 1.8);
+const PARTS = []; { const r = rng(21), col = SETN === "night" ? 0xffc477 : SETN === "kitchen" ? 0xffe2a8 : SETN === "quiosque" ? 0xffd9a0 : SETN === "sala" ? 0xffd9a0 : 0xffffff, mm = glowMat(col, SETN === "office" ? 0.9 : 1.8);
   for (let i = 0; i < (SETN === "office" ? 36 : 56); i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 0.07), mm); const p = { m, x: -7 + r() * 16, y: 1.6 + r() * 5.4, z: -2 + r() * 11, ph: r() * 6.28, sp: 0.15 + r() * 0.25 }; m.position.set(p.x, p.y, p.z); scene.add(m); PARTS.push(p); } }
 
 // ---------- tela do notebook (terminal ou arquivo markdown) ----------
@@ -389,6 +442,16 @@ function drawScreen(spec, p, t) {
   if (!md) { c.strokeStyle = "#4a4c5c"; c.lineWidth = 3; c.strokeRect(28, 610, w - 56, 84); c.fillStyle = "#e0714a"; c.fillText(">", 50, 665);
     if (Math.floor(t * 2) % 2 === 0) { c.fillStyle = "#e0714a"; c.fillRect(92, 632, 16, 40); }
     c.fillStyle = "#9a9cae"; c.font = "28px 'DejaVu Sans Mono', monospace"; c.fillText(footer, 40, 735); }
+  const cmds = (spec.events || []).filter(ev => ev.kind === "cmd" && p >= ev.f);                                   // comando em destaque (digitado na tela)
+  cmds.forEach(ev => {
+    const n = Math.floor(clamp((p - ev.f) / (ev.dur || 0.45)) * ev.text.length), typed = ev.text.slice(0, n);
+    c.fillStyle = "rgba(0,0,0,.55)"; c.fillRect(0, 250, w, 380);
+    c.fillStyle = "#8d8fa0"; c.font = "bold 30px 'DejaVu Sans', sans-serif"; c.textAlign = "left"; c.fillText("DIGITE ISTO NO CHAT:", 44, 300);
+    c.fillStyle = "#1c1d29"; c.strokeStyle = "#e0714a"; c.lineWidth = 7; c.beginPath(); c.roundRect(34, 330, w - 68, 190, 26); c.fill(); c.stroke();
+    c.font = "bold 74px 'DejaVu Sans Mono', monospace"; c.fillStyle = "#e0714a"; c.fillText("$", 68, 450); c.fillStyle = "#ffffff"; c.fillText(typed, 132, 450);
+    if (Math.floor(t * 2) % 2 === 0) { c.fillStyle = "#e0714a"; c.fillRect(132 + c.measureText(typed).width + 6, 390, 22, 70); }
+    if (ev.desc && n >= ev.text.length) { c.font = "bold 36px 'DejaVu Sans', sans-serif"; c.fillStyle = "#7ee2a8"; c.fillText("→ " + ev.desc, 44, 585); }
+  });
   banners.forEach(b => {
     const k = Math.min(1, (p - b.f) * 9), e = 1 - Math.pow(1 - k, 3);
     c.save(); c.translate(w / 2, 400); c.rotate(-0.2); c.translate((1 - e) * -w, 0);
@@ -429,9 +492,9 @@ const fwdOf = g => V(Math.cos(g.rotation.y), 0, -Math.sin(g.rotation.y));
 const FU = fwdOf(user), FM = fwdOf(mascot), FC = fwdOf(comp);
 
 function shotFor(sh, k) {
-  let pos, look, fov = 36, ap = 0.05; const a = sh.a || 0;
-  if (sh.name === "cuUser") { const d = lerp(4.5, 4.0, k); pos = REST.uh.clone().addScaledVector(rotY(FU, a), d).add(V(0, 0.3, 0)); look = REST.uh.clone().add(V(0, 0.55, 0)); ap = 0.12; }
-  else if (sh.name === "cuMascot") { const d = lerp(5.8, 5.2, k); pos = REST.mh.clone().addScaledVector(rotY(FM, a), d).add(V(0, 0.4, 0)); look = REST.mh.clone().add(V(0, 0.35, 0)); ap = 0.10; }
+  let pos, look, fov = 36, ap = 0.05; const a = sh.a || 0, zf = sh.z || 1;
+  if (sh.name === "cuUser") { const d = lerp(4.5, 4.0, k) * zf; pos = REST.uh.clone().addScaledVector(rotY(FU, a), d).add(V(0, 0.3, 0)); look = REST.uh.clone().add(V(0, 0.55, 0)); ap = 0.12; }
+  else if (sh.name === "cuMascot") { const d = lerp(5.8, 5.2, k) * zf; pos = REST.mh.clone().addScaledVector(rotY(FM, a), d).add(V(0, 0.4, 0)); look = REST.mh.clone().add(V(0, 0.35, 0)); ap = 0.10; }
   else if (sh.name === "cuComp") { const d = lerp(14.5, 13.5, k); pos = REST.ch.clone().addScaledVector(rotY(CNORM, 0.3), d).add(V(0, 0.4, 0)); look = REST.ch.clone().add(V(0, 0.1, 0)); ap = 0.08; }
   else if (sh.name === "screen") { const d = lerp(4.3, 3.8, k), aa = sh.a || 0.35; pos = REST.sc.clone().addScaledVector(rotY(FU, aa * 1.2), -d * 0.95).add(V(0, 0.45 + k * 0.1, 0)); look = REST.sc.clone().add(V(0, 0.04, 0)); fov = 28; ap = 0.09; }
   else if (sh.name === "three") { pos = V(lerp(2.9, 2.7, k), 4.4, lerp(21, 20, k)); look = V(2.9, 3.2, 0); fov = 48; ap = 0.03; }
@@ -444,6 +507,7 @@ function shotFor(sh, k) {
 const insEl = document.getElementById("insert"); let insKey = -1;
 function buildInsert(ln) {
   const I = ln.insert;
+  if (I.kind === "reel") { insEl.innerHTML = reelHTML(I, ln); return; }
   if (I.kind === "phone") {
     insEl.innerHTML = `<div class="phone"><div class="scr"><div class="bar">${I.name}</div><div class="msgs">${I.msgs.map((m, i) => `<div class="bub ${m[0]}" data-at="${m[2]}">${m[1]}</div>`).join("")}</div></div></div>`;
   } else {
@@ -453,11 +517,44 @@ function buildInsert(ln) {
       <circle cx="${cx}" cy="${cy}" r="120" fill="#e8744c"/><text x="${cx}" y="${cy - 6}" text-anchor="middle" fill="#fff" font-size="30">grupo de</text><text x="${cx}" y="${cy + 32}" text-anchor="middle" fill="#fff" font-size="30">achadinhos</text></svg>`;
   }
 }
+
+function humanBox(x, y, sc, opt = {}) {
+  const shades = opt.shades ? `<div style="position:absolute;left:6px;top:66px;width:158px;height:34px;background:#0b0b10;border-radius:10px"></div>` : `<div class="beye" style="left:34px"></div><div class="beye" style="left:116px"></div><div class="bbrow" style="left:22px"></div><div class="bbrow" style="left:106px"></div>`;
+  const hair = `<div class="bhair" style="background:${opt.hair || "#2a1812"}"></div>` + (opt.spikes === false ? "" : [14, 54, 94, 134].map((l, i) => `<div class="bspike" style="left:${l}px;top:${-52 - (i % 2) * 8}px;border-bottom-color:${opt.spike || "#6e402a"}"></div>`).join(""));
+  return `<div class="bk" style="left:${x}px;top:${y}px;transform:scale(${sc});transform-origin:0 0">
+    <div class="bbody" style="left:-10px;top:180px;width:190px;height:170px;background:${opt.body || "#356f73"}"></div>${opt.tie ? `<div style="position:absolute;left:68px;top:180px;width:34px;height:110px;background:#d92b2b;border-radius:6px"></div>` : ""}
+    <div class="bhead" style="background:${opt.skin || "#f3d3bd"}">${hair}${shades}<div class="bnose"></div><div class="rmouth" data-s="${opt.s || 0}"></div></div></div>`;
+}
+function reelHTML(I, ln) {
+  let bg, inner, cap = ln.cap;
+  if (I.n === 1) {
+    bg = "linear-gradient(180deg,#1b1f4b,#4a2f7a)";
+    inner = humanBox(30, 330, 1.05, { s: 1 }) + `<div class="mas" data-m="1" style="left:290px;top:520px"><div class="e" style="left:42px"></div><div class="e" style="left:128px"></div></div><div class="bbody" style="left:270px;top:690px;width:230px;height:20px;background:#0003;border-radius:10px"></div>`;
+  } else if (I.n === 2) {
+    bg = "linear-gradient(180deg,#ff5fa8,#ffb35a)";
+    inner = `<div class="rbig" style="color:#fff200">5 SKILLS\nQUE NINGUÉM\nTE MOSTRA</div><div style="position:absolute;left:100px;top:330px;width:360px;height:360px;border-radius:50%;border:26px solid #fff8;box-sizing:border-box"></div>` + humanBox(170, 390, 1.05, { s: 2, shades: true, hair: "#3a1f12", spike: "#c4863a", body: "#ffffff" });
+    cap = "";
+  } else {
+    bg = "linear-gradient(180deg,#7a0f1c,#1d0a10)";
+    inner = `<div style="position:absolute;left:28px;top:112px;background:#e5222f;padding:6px 20px;font-weight:900;font-size:34px;border-radius:8px">URGENTE</div><div class="rbig" style="top:170px;font-size:46px">A IA VAI ACABAR COM O EMPREGO DE TODO MUNDO</div>` + humanBox(170, 420, 0.95, { s: 3, hair: "#1a1a1a", spikes: false, body: "#1f2a44", tie: true, skin: "#e8c4a8" });
+    cap = "";
+  }
+  return `<div class="ig"><div class="scr"><div class="reel" style="background:${bg}">${inner}</div><div class="rtop">Reels</div>
+    <div class="rside"><div><i>♥</i>${I.likes}</div><div><i>💬</i>1.2k</div><div><i>➤</i></div></div>
+    <div class="rcap">${cap}</div><div class="rbot"><b>${I.handle}</b><span class="seg">Seguir</span></div></div></div>`;
+}
 function updateInsert(ln, act, t) {
   const on = !!ln.insert && t >= ln.start - 0.04 && t < ln.end + 0.2;
   insEl.style.display = on ? "flex" : "none"; if (!on) { insKey = -1; return false; }
   if (insKey !== act) { buildInsert(ln); insKey = act; }
   const e = t - ln.start;
+  if (ln.insert.kind === "reel") {
+    const am = ampOf(ln, t), who = ln.who, sc = insEl.querySelector(".scr"), k0 = ln.insert.first ? clamp(e * 4.5) : 1;
+    const wrap = insEl.querySelector(".ig"); wrap.style.transform = `translateY(${(1 - (1 - Math.pow(1 - k0, 3))) * 1500}px) scale(1.6)`;
+    insEl.querySelectorAll(".rmouth").forEach(m => { m.style.height = (8 + (who === "r" + m.dataset.s ? am * 30 : 0)) + "px"; });
+    insEl.querySelectorAll(".mas").forEach(m => { m.style.transform = `translateY(${who === "c" ? -Math.abs(Math.sin(t * 9)) * 10 * am : 0}px)`; });
+    return true;
+  }
   if (ln.insert.kind === "phone") insEl.querySelectorAll(".bub").forEach(b => { const k = clamp((e - +b.dataset.at) * 6); b.style.opacity = k; b.style.transform = `translateY(${(1 - k) * 14}px)`; });
   else insEl.querySelectorAll(".en").forEach(g => { const k = clamp((e - 0.05 - +g.dataset.i * 0.11) * 8); g.style.opacity = k; });
   return true;
@@ -502,7 +599,7 @@ window.setT = function (t) {
   bokeh.uniforms.focus.value = dist; bokeh.uniforms.aperture.value = sh.ap / Math.max(1, dist) * 0.3; bokeh.uniforms.maxblur.value = 0.011;
   const ins = updateInsert(ln, act, t);
   capEl.style.top = ins ? "150px" : (CAPTOP[ln.shot.name] || "600px");
-  capEl.textContent = (t >= ln.start - 0.04 && t < ln.end + 0.25) ? ln.cap : "";
+  capEl.textContent = (t >= ln.start - 0.04 && t < ln.end + 0.25 && !(ins && ln.insert.kind === "reel")) ? ln.cap : "";
   composer.render();
 };
 </script>

@@ -554,3 +554,22 @@ ACADEMIA2 = [   # quarto, 23h50, visual v2; o comando aparece grande e o Claude 
  T("c", "Esse é o problema. Eu continuo, você só continua no sofá. Segue para mais dicas.", shz("two", 0.3, 1.0), "happy", "happy", last=True),
 ]
 EPISODES.update(academia2=dict(scene="desk_v2", set="night", t0=0.12, music=0, script=ACADEMIA2))
+
+DIRETOR = [   # estúdio à noite; o Claude é diretor de cinema; reels como "referências"
+ T("u", "Por que meu vídeo não viraliza?", shz("cuUser", 0.3, 0.8), "tired"),
+ T("c", "Silêncio, gravando. Ação!", shz("cuMascot", 0.3, 0.85), "tired", "deadpan"),
+ T("u", "Eu nem comecei!", shz("cuUser", -0.3, 0.7), "angry", "deadpan"),
+ T("c", "Esse roteiro está horrível. Corta!", shz("cuMascot", 0.25, 0.8), "angry", "smug"),
+ T("u", "Eu escrevi um prompt de três linhas.", shz("cuUser", 0.3, 0.75), "defeat", "smug", say="Eu escrevi um prômpiti de três linhas."),
+ T("c", "Três linhas. Um filme. Nenhum personagem.", shz("cuMascot", 0.3, 0.7), "defeat", "deadpan"),
+ T("u", "Todo mundo faz assim! Olha!", shz("cuUser", -0.3, 0.85), "worry", "deadpan"),
+ T("r1", "Faz um filme aí.", shz("cuUser", 0.3), "worry", "neutral", insert=dict(kind="reel", n=1, handle="@outro.perfil", likes="12,4 mil", first=True)),
+ T("c", "Onde está o roteiro?", shz("cuUser", 0.3), "worry", "neutral", insert=dict(kind="reel", n=1, handle="@outro.perfil", likes="12,4 mil")),
+ T("r2", "Cinco skills que ninguém te mostra para instalar no Claude.", shz("cuUser", 0.3), "worry", "neutral", insert=dict(kind="reel", n=2, handle="@influ.ia", likes="87 mil", first=True)),
+ T("r3", "A inteligência artificial vai acabar com o emprego de todo mundo.", shz("cuUser", 0.3), "worry", "neutral", insert=dict(kind="reel", n=3, handle="@noticia.tech", likes="203 mil", first=True)),
+ T("c", "Ela só não acaba com quem escreve bom prompt.", shz("cuUser", 0.3), "worry", "neutral", insert=dict(kind="reel", n=3, handle="@noticia.tech", likes="203 mil"), say="Ela só não acaba com quem escreve bom prômpiti."),
+ T("u", "Então o problema é o prompt?", shz("cuUser", 0.3, 0.75), "tired", "deadpan", say="Então o problema é o prômpiti?"),
+ T("c", "Se o roteiro é ruim, eu não faço milagre.", shz("cuMascot", 0.25, 0.75), "tired", "smug"),
+ T("c", "O problema é o prompt. Corta! Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True, say="O problema é o prômpiti. Corta! Segue a gente."),
+]
+EPISODES.update(diretor=dict(scene="desk_v2", set="studio", persona="diretor", t0=0.12, music=0, script=DIRETOR))

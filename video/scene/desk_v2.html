@@ -194,6 +194,19 @@ box(1.45, 1.35, 2.1, [M.faceMat, orange, orange, orange, orange, orange], 0, 1.3
 M.legs = [[-0.5, -0.7], [-0.5, 0.7], [0.45, -0.7], [0.45, 0.7]].map(p => box(0.36, 0.7, 0.36, mat(0xf08a60), p[0], 0.35, p[1], mascot, { r: 0.08 }));
 M.armR = box(0.3, 0.6, 0.3, orange, 0.15, 1.25, 1.2, M.body, { r: 0.1 }); M.armL = box(0.3, 0.6, 0.3, orange, 0.15, 1.25, -1.2, M.body, { r: 0.1 });
 
+if (TL.persona === "diretor") {                                                  // Claude diretor de cinema: boina, megafone e claquete
+  const blk = new THREE.MeshStandardMaterial({ color: 0x17171c, roughness: 0.7 }), red = new THREE.MeshStandardMaterial({ color: 0xe5484d, roughness: 0.5 }), wht = new THREE.MeshStandardMaterial({ color: 0xf4f4f8, roughness: 0.5 });
+  const beret = new THREE.Mesh(new THREE.CylinderGeometry(0.66, 0.74, 0.22, 32), blk); beret.position.set(-0.05, 2.14, 0); beret.rotation.z = 0.12; beret.castShadow = true; M.body.add(beret);
+  const nub = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.14, 12), blk); nub.position.set(-0.05, 2.3, 0); M.body.add(nub);
+  const mega = new THREE.Group(); mega.position.set(1.05, 1.5, 1.15); mega.rotation.y = 0; M.body.add(mega);
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.46, 1.0, 28, 1, true), red); cone.rotation.z = Math.PI / 2; cone.position.set(0.25, 0, 0); cone.material.side = THREE.DoubleSide; cone.castShadow = true; mega.add(cone);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.46, 0.05, 10, 28), wht); ring.rotation.y = Math.PI / 2; ring.position.set(0.75, 0, 0); mega.add(ring);
+  const grip = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.5, 0.16), blk); grip.position.set(-0.12, -0.35, 0); mega.add(grip);
+  const clap = canvasTex(256, 200, (c, w, h) => { c.fillStyle = "#15151a"; c.fillRect(0, 0, w, h); c.fillStyle = "#f4f4f8"; for (let i = -2; i < 8; i++) { c.save(); c.translate(i * 44, 0); c.transform(1, 0, -0.6, 1, 0, 0); c.fillRect(0, 0, 22, 52); c.restore(); }
+    c.fillStyle = "#f4f4f8"; c.font = "bold 34px sans-serif"; c.fillText("CENA 1", 20, 100); c.font = "26px sans-serif"; c.fillText("TOMADA 47", 20, 150); });
+  const cb = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.86, 0.08), [blk, blk, blk, blk, new THREE.MeshStandardMaterial({ map: clap.tex, roughness: 0.7 }), blk]); cb.position.set(4.9, 2.78, 1.3); cb.rotation.y = -0.42; cb.castShadow = true; scene.add(cb);
+}
+
 // ---------- concorrente: Codex (nuvem de cristal low-poly azul/roxo com ">_" grande) ----------
 const comp = new THREE.Group(); comp.position.set(6.0, 2.38, 0.0); comp.rotation.y = Math.PI + 0.72; comp.visible = HAS_COMP; scene.add(comp);
 const C = {}; C.body = new THREE.Group(); comp.add(C.body);

@@ -146,7 +146,7 @@ fd = int(0.8*SR); mix[-fd:] *= np.linspace(1, 0, fd)[:, None]
 mix = np.clip(mix/np.abs(mix).max()*0.92, -1, 1)
 sf.write(os.path.join(WORK, "mix.wav"), mix, SR)
 
-tl = json.dumps(dict(total=round(TOTAL, 3), fps=FPS, set=META.get('set'), lines=SCRIPT), ensure_ascii=False)
+tl = json.dumps(dict(total=round(TOTAL, 3), fps=FPS, set=META.get('set'), persona=META.get('persona'), lines=SCRIPT), ensure_ascii=False)
 os.makedirs(os.path.join(HERE, "scene"), exist_ok=True)
 open(os.path.join(HERE, "scene", EP + ".timeline.js"), "w").write("window.TIMELINE = " + tl + ";")
 print("OK", round(TOTAL, 1), "s;", len(SCRIPT), "falas")

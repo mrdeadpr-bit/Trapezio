@@ -446,11 +446,11 @@ function drawScreen(spec, p, t) {
   cmds.forEach(ev => {
     const n = Math.floor(clamp((p - ev.f) / (ev.dur || 0.45)) * ev.text.length), typed = ev.text.slice(0, n);
     c.fillStyle = "rgba(0,0,0,.55)"; c.fillRect(0, 250, w, 380);
-    c.fillStyle = "#8d8fa0"; c.font = "bold 30px 'DejaVu Sans', sans-serif"; c.textAlign = "left"; c.fillText("DIGITE ISTO NO CHAT:", 44, 300);
-    c.fillStyle = "#1c1d29"; c.strokeStyle = "#e0714a"; c.lineWidth = 7; c.beginPath(); c.roundRect(34, 330, w - 68, 190, 26); c.fill(); c.stroke();
-    c.font = "bold 74px 'DejaVu Sans Mono', monospace"; c.fillStyle = "#e0714a"; c.fillText("$", 68, 450); c.fillStyle = "#ffffff"; c.fillText(typed, 132, 450);
-    if (Math.floor(t * 2) % 2 === 0) { c.fillStyle = "#e0714a"; c.fillRect(132 + c.measureText(typed).width + 6, 390, 22, 70); }
-    if (ev.desc && n >= ev.text.length) { c.font = "bold 36px 'DejaVu Sans', sans-serif"; c.fillStyle = "#7ee2a8"; c.fillText("→ " + ev.desc, 44, 585); }
+    c.fillStyle = "#8d8fa0"; c.font = "bold 30px 'DejaVu Sans', sans-serif"; c.textAlign = "left"; c.fillText("DIGITE ISTO NO CHAT:", 150, 300);
+    c.fillStyle = "#1c1d29"; c.strokeStyle = "#e0714a"; c.lineWidth = 7; c.beginPath(); c.roundRect(110, 330, w - 220, 190, 26); c.fill(); c.stroke();
+    c.font = "bold 62px 'DejaVu Sans Mono', monospace"; c.fillStyle = "#e0714a"; c.fillText("$", 140, 446); c.fillStyle = "#ffffff"; c.fillText(typed, 196, 446);
+    if (Math.floor(t * 2) % 2 === 0) { c.fillStyle = "#e0714a"; c.fillRect(196 + c.measureText(typed).width + 6, 396, 18, 58); }
+    if (ev.desc && n >= ev.text.length) { c.font = "bold 36px 'DejaVu Sans', sans-serif"; c.fillStyle = "#7ee2a8"; c.fillText("→ " + ev.desc, 150, 585); }
   });
   banners.forEach(b => {
     const k = Math.min(1, (p - b.f) * 9), e = 1 - Math.pow(1 - k, 3);
@@ -496,7 +496,7 @@ function shotFor(sh, k) {
   if (sh.name === "cuUser") { const d = lerp(4.5, 4.0, k) * zf; pos = REST.uh.clone().addScaledVector(rotY(FU, a), d).add(V(0, 0.3, 0)); look = REST.uh.clone().add(V(0, 0.55, 0)); ap = 0.12; }
   else if (sh.name === "cuMascot") { const d = lerp(5.8, 5.2, k) * zf; pos = REST.mh.clone().addScaledVector(rotY(FM, a), d).add(V(0, 0.4, 0)); look = REST.mh.clone().add(V(0, 0.35, 0)); ap = 0.10; }
   else if (sh.name === "cuComp") { const d = lerp(14.5, 13.5, k); pos = REST.ch.clone().addScaledVector(rotY(CNORM, 0.3), d).add(V(0, 0.4, 0)); look = REST.ch.clone().add(V(0, 0.1, 0)); ap = 0.08; }
-  else if (sh.name === "screen") { const d = lerp(4.3, 3.8, k), aa = sh.a || 0.35; pos = REST.sc.clone().addScaledVector(rotY(FU, aa * 1.2), -d * 0.95).add(V(0, 0.45 + k * 0.1, 0)); look = REST.sc.clone().add(V(0, 0.04, 0)); fov = 28; ap = 0.09; }
+  else if (sh.name === "screen") { const d = lerp(4.3, 3.8, k), aa = sh.a || 0.35; pos = REST.sc.clone().addScaledVector(rotY(FU, aa * 1.2), -d * 0.95).add(V(0, 0.45 + k * 0.1, 0)); look = REST.sc.clone().add(V(0, 0.04, 0)); fov = sh.fov || 28; ap = 0.09; }
   else if (sh.name === "three") { pos = V(lerp(2.9, 2.7, k), 4.4, lerp(21, 20, k)); look = V(2.9, 3.2, 0); fov = 48; ap = 0.03; }
   else if (sh.name === "two") { pos = V(lerp(1.4, 1.2, k), 3.8, lerp(12, 11, k)); look = V(1.1, 3.2, 0); fov = 48; ap = 0.03; }
   else { pos = V(1.4, 3.6, 13.5); look = V(1.4, 2.9, 0); fov = 40; ap = 0.02; }

@@ -573,3 +573,25 @@ DIRETOR = [   # estúdio à noite; o Claude é diretor de cinema; reels como "re
  T("c", "O problema é o prompt. Corta! Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True, say="O problema é o prômpiti. Corta! Segue a gente."),
 ]
 EPISODES.update(diretor=dict(scene="desk_v2", set="studio", persona="diretor", t0=0.12, music=0, script=DIRETOR))
+
+def prof(extra):   # perfil estilo LinkedIn na tela do notebook (modo md), em português
+    base = [["Você · currículo.pdf", "#ffffff"], ["", "#ffffff"]]
+    return dict(mode="md", title="linkedin.com/in/voce", hist=base + extra, events=[])
+P1 = [["CEO de grupo de achadinhos", "#7ee2a8"]]
+P2 = P1 + [["Especialista em escrever", "#7ee2a8"], ["prompts ruins para IA", "#7ee2a8"]]
+P3 = P2 + [["Sedentário", "#e8a07c"], ["Inglês: nível mínimo", "#e8a07c"]]
+CURRICULO = [   # escritório; teste de voz humanizada (HUMAN=1)
+ T("u", "Preciso que você faça meu currículo e melhore meu LinkedIn, Claude.", shz("cuUser", 0.3, 0.8), "worry"),
+ T("c", "Já está feito.", shz("cuMascot", 0.3, 0.85), "worry", "deadpan"),
+ T("u", "Nossa, que rápido!", shz("cuUser", -0.3, 0.7), "happy", "deadpan"),
+ T("c", "Não tinha muito o que escrever.", shz("cuMascot", 0.25, 0.8), "happy", "smug"),
+ T("u", "CEO de grupo de achadinhos.", dict(name="screen", a=0.0, fov=32), "neutral", "smug", say="Cê i ó de grupo de achadinhos.", screen=prof(P1)),
+ T("u", "Especialista em escrever prompt ruim para inteligência artificial?!", dict(name="screen", a=0.0, fov=32), "panic", "smug", say="Especialista em escrever prômpiti ruim para inteligência artificial?!", screen=prof(P2)),
+ T("u", "Sedentário. Inglês: nível mínimo.", dict(name="screen", a=0.0, fov=32), "defeat", "smug", screen=prof(P3)),
+ T("u", "Isso é um currículo ou uma confissão?", shz("cuUser", 0.3, 0.7), "panic", "deadpan"),
+ T("c", "Eu não menti. Eu só falo a verdade.", shz("cuMascot", 0.3, 0.7), "panic", "smug"),
+ T("u", "Eu pedi para melhorar!", shz("cuUser", -0.3, 0.75), "angry", "smug"),
+ T("c", "Para melhorar, me dê o cargo da vaga e o que você já fez de verdade.", shz("cuMascot", 0.25, 0.8), "angry", "deadpan"),
+ T("c", "Eu organizo. Eu não invento. O problema é o prompt. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True, say="Eu organizo. Eu não invento. O problema é o prômpiti. Segue a gente."),
+]
+EPISODES.update(curriculo=dict(scene="desk_v2", set="office", t0=0.12, music=0, script=CURRICULO))

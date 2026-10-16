@@ -32,6 +32,9 @@ def voice_line(i, who, text, tone="norm"):
     if ext and os.path.exists(ext):                                  # áudio gravado por você substitui a voz sintética
         out = os.path.join(WORK, f"l{i}.wav"); voice.finish(ext, out, who, PARAMS)
         a, _ = sf.read(out, dtype="float32"); return a
+    reuse = os.path.join(WORK, f"l{i}.wav")
+    if os.environ.get("REUSE") and os.path.exists(reuse) and str(i) not in os.environ.get("REDO", "").split(","):   # reaproveita falas já aprovadas
+        a, _ = sf.read(reuse, dtype="float32"); return a
     best = None
     for k in range(BEST_OF if ASR else 1):                           # o TTS tem aleatoriedade: cada tentativa sai um pouco diferente
         a = voice.synth_line(who, text, tone, PARAMS, WORK)

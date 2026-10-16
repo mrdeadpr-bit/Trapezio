@@ -585,7 +585,7 @@ CURRICULO = [   # escritório; teste de voz humanizada (HUMAN=1)
  T("c", "Já está feito.", shz("cuMascot", 0.3, 0.85), "worry", "deadpan"),
  T("u", "Nossa, que rápido!", shz("cuUser", -0.3, 0.7), "happy", "deadpan"),
  T("c", "Não tinha muito o que escrever.", shz("cuMascot", 0.25, 0.8), "happy", "smug"),
- T("u", "CEO de grupo de achadinhos.", dict(name="screen", a=0.0, fov=32), "neutral", "smug", say="Cê i ó de grupo de achadinhos.", screen=prof(P1)),
+ T("u", "CEO de grupo de achadinhos.", dict(name="screen", a=0.0, fov=32), "neutral", "smug", say="Síou de grupo de achadinhos.", screen=prof(P1)),
  T("u", "Especialista em escrever prompt ruim para inteligência artificial?!", dict(name="screen", a=0.0, fov=32), "panic", "smug", say="Especialista em escrever prômpiti ruim para inteligência artificial?!", screen=prof(P2)),
  T("u", "Sedentário. Inglês: nível mínimo.", dict(name="screen", a=0.0, fov=32), "defeat", "smug", screen=prof(P3)),
  T("u", "Isso é um currículo ou uma confissão?", shz("cuUser", 0.3, 0.7), "panic", "deadpan"),

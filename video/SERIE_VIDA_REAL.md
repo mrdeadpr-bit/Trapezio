@@ -44,24 +44,18 @@ Cada roteiro passa por todas, nesta ordem. Se uma reprovar, o roteiro volta.
 8. **20–25 s no máximo.** Se passar, corto.
 9. **Ressalva engraçada, nunca chata:** em assuntos de saúde, dinheiro ou lei, o Claude manda procurar o profissional de um jeito que faz parte da piada.
 
-## 5. Roteiro completo 1: o presunto (formato A, ~24 s)
-Cenário: cozinha. Adereço novo: **prato com presunto cinza-esverdeado e linhas de "cheiro" subindo.** O Claude de **chapéu de chef**. Primeiro quadro: texto "PRESUNTO DE 7 DIAS. POSSO COMER?"
+## 5. Roteiro completo 1 (versão aprovada em tom): o presunto
+**Tom corrigido:** sem dado, sem prazo, sem "dica de vida real". O Claude só debocha da desculpa do boneco, com ceticismo e cada resposta pior que a anterior. O veredito é piada ("Joga fora. Com carinho e com nojo.").
+Cenário: cozinha. Claude de **chapéu de chef**. Adereço: **prato com presunto que vai ficando mais mofado durante o vídeo** (aparece em todos os quadros).
+- boneco: "Presunto de uma semana. Gosmento. Posso comer?"
+- Claude: "Gosmento é a textura dele pedindo socorro."
+- boneco: "O cheiro está normal!" / Claude: "Você cheirou. Eu já estou com pena."
+- boneco: "Eu tiro a parte gosmenta." / Claude: "Sobra o quê? A lembrança?"
+- boneco: "E se eu esquentar bem?" / Claude: "Aí é o mesmo presunto, só que quentinho."
+- boneco: "Eu só tenho doze reais até sexta." / Claude: "Então o plano B é pão seco e dignidade."
+- Claude (fecho): "Joga fora. Com carinho e com nojo. Segue a gente."
 
-| fala | quem | enquadramento |
-|---|---|---|
-| "Presunto de uma semana. Gosmento. Posso comer?" | boneco | close no rosto + prato em primeiro plano |
-| "Não." | Claude | close seco no Claude |
-| "Mas o cheiro está normal!" | boneco | close, expressão de defesa |
-| "Fatiado e aberto dura, em geral, de três a cinco dias. O seu tem sete." | Claude | zoom no Claude; na tela do prato, um calendário riscado |
-| "Eu tiro a parte gosmenta." | boneco | close, esperançoso |
-| "A gosma é só a parte que você consegue ver." | Claude | zoom rápido, pausa de 0,3 s |
-| "E se eu fritar?" | boneco | close |
-| "Calor mata bactéria. Não desfaz tudo o que ela deixou." | Claude | plano médio |
-| "Eu só tenho doze reais até sexta." | boneco | close, derrotado |
-| "Intoxicação custa mais que presunto. Em dúvida, joga fora." | Claude | zoom |
-| *(cartão na tela, 3 s)* "Para me perguntar sobre comida: alimento, tempo guardado, como guardou e o que você notou." Segue a gente. | Claude (fecho debochado) | plano aberto + cartão |
-
-Checagem de fato: o prazo de 3 a 5 dias para frios fatiados abertos é a orientação comum de segurança alimentar; a fala diz "em geral" e fecha com "em dúvida, joga fora". A produção deve manter essa ressalva.
+Regra nova da série: **proibido citar prazo, porcentagem ou norma.** A graça vem do deboche e do critério do cético, não de informação.
 
 ## 6. Roteiro completo 2: mensagem para o ex às 3h (formato A, ~22 s)
 Cenário: quarto, de madrugada. Claude de **gravata e crachá de "RH da madrugada"**. Primeiro quadro: "03:07 — VOU MANDAR MENSAGEM PRO EX".

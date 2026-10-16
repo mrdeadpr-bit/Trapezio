@@ -595,3 +595,18 @@ CURRICULO = [   # escritório; teste de voz humanizada (HUMAN=1)
  T("c", "Eu organizo. Eu não invento. O problema é o prompt. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True, say="Eu organizo. Eu não invento. O problema é o prômpiti. Segue a gente."),
 ]
 EPISODES.update(curriculo=dict(scene="desk_v2", set="office", t0=0.12, music=0, script=CURRICULO))
+
+PRESUNTO = [   # cozinha; deboche puro, sem dica; o adereço (presunto) apodrece durante o vídeo
+ T("u", "Presunto de uma semana. Gosmento. Posso comer?", shz("cuUser", 0.3, 0.8), "worry"),
+ T("c", "Gosmento é a textura dele pedindo socorro.", shz("cuMascot", 0.3, 0.85), "worry", "deadpan"),
+ T("u", "O cheiro está normal!", shz("cuUser", -0.3, 0.7), "angry", "deadpan"),
+ T("c", "Você cheirou. Eu já estou com pena.", shz("cuMascot", 0.25, 0.8), "angry", "smug"),
+ T("u", "Eu tiro a parte gosmenta.", shz("cuUser", 0.3, 0.75), "worry", "smug"),
+ T("c", "Sobra o quê? A lembrança?", shz("cuMascot", 0.3, 0.7), "worry", "deadpan"),
+ T("u", "E se eu esquentar bem?", shz("cuUser", -0.3, 0.8), "sly", "deadpan"),
+ T("c", "Aí é o mesmo presunto, só que quentinho.", shz("cuMascot", 0.25, 0.75), "sly", "smug"),
+ T("u", "Eu só tenho doze reais até sexta.", shz("cuUser", 0.3, 0.7), "defeat", "smug"),
+ T("c", "Então o plano B é pão seco e dignidade.", shz("cuMascot", 0.3, 0.8), "defeat", "deadpan"),
+ T("c", "Joga fora. Com carinho e com nojo. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True),
+]
+EPISODES.update(presunto=dict(scene="desk_v2", set="kitchen", persona="chef", prop="presunto", t0=0.05, music=0, script=PRESUNTO))

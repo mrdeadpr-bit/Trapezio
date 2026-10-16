@@ -9,6 +9,7 @@
   #cap { position: absolute; left: 80px; right: 80px; top: 600px; text-align: center; color: #fff;
          font: 600 56px/1.2 "Inter", "DejaVu Sans", sans-serif; letter-spacing: -.005em;
          text-shadow: 0 2px 6px rgba(0,0,0,.7), 0 0 22px rgba(0,0,0,.55); white-space: pre-line; }
+  #prop { position: absolute; left: 30px; bottom: 70px; width: 330px; height: 250px; z-index: 3; display: none; }
   #insert { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(8,10,24,.78); }
   .phone { width: 520px; height: 980px; border-radius: 64px; background: #101216; padding: 22px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
   .phone .scr { background: #ece5dd; border-radius: 44px; height: 100%; overflow: hidden; display: flex; flex-direction: column; font-family: "Inter", "DejaVu Sans", sans-serif; }
@@ -43,7 +44,7 @@
 <script type="importmap">{ "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }</script>
 </head>
 <body>
-<div id="wrap"><div id="insert"></div><div id="cap"></div></div>
+<div id="wrap"><div id="insert"></div><div id="prop"></div><div id="cap"></div></div>
 
 <script type="module">
 import * as THREE from "three";
@@ -205,6 +206,12 @@ if (TL.persona === "diretor") {                                                 
   const clap = canvasTex(256, 200, (c, w, h) => { c.fillStyle = "#15151a"; c.fillRect(0, 0, w, h); c.fillStyle = "#f4f4f8"; for (let i = -2; i < 8; i++) { c.save(); c.translate(i * 44, 0); c.transform(1, 0, -0.6, 1, 0, 0); c.fillRect(0, 0, 22, 52); c.restore(); }
     c.fillStyle = "#f4f4f8"; c.font = "bold 34px sans-serif"; c.fillText("CENA 1", 20, 100); c.font = "26px sans-serif"; c.fillText("TOMADA 47", 20, 150); });
   const cb = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.86, 0.08), [blk, blk, blk, blk, new THREE.MeshStandardMaterial({ map: clap.tex, roughness: 0.7 }), blk]); cb.position.set(4.9, 2.78, 1.3); cb.rotation.y = -0.42; cb.castShadow = true; scene.add(cb);
+}
+
+if (TL.persona === "chef") {                                                    // Claude de chef de cozinha
+  const wht = new THREE.MeshStandardMaterial({ color: 0xf7f7fa, roughness: 0.8 });
+  const band = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.55, 0.3, 28), wht); band.position.set(-0.05, 2.15, 0); band.castShadow = true; M.body.add(band);
+  const puff = new THREE.Mesh(new THREE.SphereGeometry(0.62, 28, 20), wht); puff.scale.set(1, 0.72, 1); puff.position.set(-0.05, 2.5, 0); puff.castShadow = true; M.body.add(puff);
 }
 
 // ---------- concorrente: Codex (nuvem de cristal low-poly azul/roxo com ">_" grande) ----------
@@ -582,7 +589,25 @@ function ampOf(ln, t) {                                       // média móvel: 
   for (let d = -2; d <= 2; d++) { const i = Math.round(f) + d; if (i >= 0 && i < ln.amp.length) { s += ln.amp[i]; n++; } }
   return clamp(s / n * 9);
 }
+
+// ---------- adereço: presunto que apodrece durante o vídeo ----------
+const propEl = document.getElementById("prop"); let propBuilt = false; const MOLD = [[120, 120, 14], [190, 105, 10], [230, 140, 16], [150, 150, 11], [95, 140, 9], [210, 118, 8], [175, 135, 13], [135, 98, 9], [245, 118, 8], [110, 160, 7]];
+function updateProp(t) {
+  if (TL.prop !== "presunto") return; propEl.style.display = "block";
+  if (!propBuilt) { propBuilt = true;
+    propEl.innerHTML = `<svg viewBox="0 0 330 250" width="330" height="250"><ellipse cx="165" cy="190" rx="150" ry="38" fill="#00000030"/><ellipse cx="165" cy="178" rx="145" ry="36" fill="#f4f4f8"/><ellipse cx="165" cy="172" rx="108" ry="24" fill="#e6e6ee"/>
+      <path d="M70 150 Q80 110 150 104 Q235 98 262 136 Q268 162 215 172 Q150 184 88 172 Q64 166 70 150Z" fill="#d89a9f"/><path d="M82 146 Q92 120 150 114 Q220 109 246 134" fill="none" stroke="#e8b3b6" stroke-width="7" stroke-linecap="round"/>
+      <path d="M70 150 Q80 110 150 104 Q235 98 262 136 Q268 162 215 172 Q150 184 88 172 Q64 166 70 150Z" fill="#7fa65a" opacity="0.0" id="ham_g"/>
+      ${MOLD.map((m, i) => `<circle class="mold" cx="${m[0]}" cy="${m[1]}" r="${m[2]}" fill="${i % 2 ? "#6f9a4a" : "#8cb85e"}" opacity="0"/>`).join("")}
+      <path class="stk" d="M110 96 q-12 -18 0 -34 q12 -16 0 -32" fill="none" stroke="#9fd06a" stroke-width="6" stroke-linecap="round" opacity="0.8"/><path class="stk" d="M165 90 q-12 -18 0 -34 q12 -16 0 -32" fill="none" stroke="#9fd06a" stroke-width="6" stroke-linecap="round" opacity="0.8"/><path class="stk" d="M220 96 q-12 -18 0 -34 q12 -16 0 -32" fill="none" stroke="#9fd06a" stroke-width="6" stroke-linecap="round" opacity="0.8"/></svg>`; }
+  const k = clamp(t / (TL.total * 0.85)), n = Math.floor(2 + k * (MOLD.length - 2));
+  propEl.querySelectorAll(".mold").forEach((c, i) => { c.setAttribute("opacity", i < n ? 0.9 : 0); });
+  propEl.querySelectorAll(".stk").forEach((p, i) => { p.setAttribute("transform", `translate(0 ${Math.sin(t * 3 + i * 1.7) * 6})`); p.setAttribute("opacity", 0.45 + 0.4 * Math.sin(t * 2.4 + i)); });
+  propEl.style.transformOrigin = '0% 100%'; propEl.style.transform = `translateY(${Math.sin(t * 2) * 5}px) rotate(${Math.sin(t * 1.3) * 1.5}deg) scale(1.55)`;
+}
+
 window.setT = function (t) {
+  updateProp(t);
   const lines = TL.lines; let act = 0; lines.forEach((l, i) => { if (t >= l.start - 0.04) act = i; });
   const ln = lines[act], speaking = t >= ln.start - 0.04 && t < ln.end + 0.12;
   const amp = speaking ? ampOf(ln, t) : 0, uTalk = ln.who === "u" ? amp : 0, cTalk = ln.who === "c" ? amp : 0, xTalk = ln.who === "x" ? amp : 0;

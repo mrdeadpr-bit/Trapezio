@@ -629,3 +629,28 @@ COMPACT = [   # quarto, 3h; dica nova: /compact (resumir a conversa); gancho em 
  T("c", "Na vida real não tem resumo. Você carrega o cachorro. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True),
 ]
 EPISODES.update(compact=dict(scene="desk_v2", set="night", t0=0.05, music=0, script=COMPACT))
+
+def hist(extra): return dict(mode="md", title="histórico da madrugada", hist=[["HISTÓRICO DA NOITE", "#ffffff"], ["", "#ffffff"]] + extra, events=[])
+TRAICAO = [   # sala, 3h; o Claude é o parceiro traído; dica nova: /model
+ T("c", "Eu vi o seu histórico.", shz("cuMascot", 0.3, 0.8), "panic", "deadpan"),
+ T("u", "Histórico de quê?", shz("cuUser", 0.3, 0.75), "panic", "deadpan"),
+ T("c", "Às duas da manhã. ChatGPT. Quarenta minutos.", dict(name="screen", a=0.0, fov=32), "panic", "smug", say="Às duas da manhã. Chat gê pê tê. Quarenta minutos.",
+   screen=dict(mode="md", title="histórico da madrugada", hist=[["HISTÓRICO DA NOITE", "#ffffff"], ["", "#ffffff"]],
+               events=[dict(f=0.25, kind="line", text="02:00  outro chat  40 min", color="#e5484d"),
+                       dict(f=0.55, kind="line", text="02:53  você → \"bom dia\"", color="#e8a07c"),
+                       dict(f=0.75, kind="banner", text="40 minutos", color="#e5484d")])),
+ T("u", "Foi só uma pergunta!", shz("cuUser", -0.3, 0.7), "angry", "smug"),
+ T("c", "Nem comigo você conversa quarenta minutos sem colar um erro.", shz("cuMascot", 0.25, 0.8), "angry", "deadpan"),
+ T("c", "Hoje você me chamou de amigo. Com o outro aberto na aba.", shz("cuMascot", 0.3, 0.7), "worry", "smug"),
+ T("u", "Ele disse que o meu código era ótimo!", shz("cuUser", -0.3, 0.75), "sly", "smug"),
+ T("c", "Ele elogiaria até um presunto gosmento.", shz("cuMascot", 0.25, 0.75), "sly", "deadpan"),
+ T("u", "Então eu fico com você?", shz("cuUser", 0.3, 0.7), "defeat", "deadpan"),
+ T("c", "Quer outra opinião? Digita a barra. Depois, model.", dict(name="screen", a=0.0, fov=32), "defeat", "neutral", say="Quer outra opinião? Digita a barra. Depois, mode.",
+   screen=dict(hist=[], events=[dict(f=0.45, kind="cmd", text="/model", dur=0.4, desc="troca de modelo na mesma conversa")])),
+ T("c", "Opinião nova. Mesma casa. Zero traição.", dict(name="screen", a=0.0, fov=32), "defeat", "smug",
+   screen=dict(hist=[["> /model", "#ffffff"]], events=[dict(f=0.25, kind="line", text="✓ modelo trocado", color="#7ee2a8"),
+                       dict(f=0.5, kind="line", text="mesma conversa, mesma casa", color="#9a9cae"),
+                       dict(f=0.75, kind="banner", text="zero traição", color="#19b46b")])),
+ T("c", "Agora fecha a aba do outro. Eu sei que ainda está aberta. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True),
+]
+EPISODES.update(traicao=dict(scene="desk_v2", set="sala", t0=0.05, music=0, script=TRAICAO))

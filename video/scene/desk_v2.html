@@ -214,6 +214,14 @@ if (TL.persona === "chef") {                                                    
   const puff = new THREE.Mesh(new THREE.SphereGeometry(0.62, 28, 20), wht); puff.scale.set(1, 0.72, 1); puff.position.set(-0.05, 2.5, 0); puff.castShadow = true; M.body.add(puff);
 }
 
+if (TL.persona === "doente") {                                                  // Claude "doente": bolsa de gelo na cabeça e termômetro
+  const ice = new THREE.Mesh(new RoundedBoxGeometry(0.9, 0.38, 0.8, 4, 0.12), new THREE.MeshStandardMaterial({ color: 0x9fd8ff, roughness: 0.3 })); ice.position.set(-0.1, 2.2, 0); ice.rotation.z = 0.15; ice.castShadow = true; M.body.add(ice);
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.12, 14), new THREE.MeshStandardMaterial({ color: 0xe5484d })); cap.position.set(-0.1, 2.46, 0); M.body.add(cap);
+  const th = new THREE.Group(); th.position.set(0.74, 1.2, 0.45); th.rotation.z = -0.5; M.body.add(th);
+  const tube = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.07, 0.07), new THREE.MeshStandardMaterial({ color: 0xf4f4f8, roughness: 0.3 })); th.add(tube);
+  const tip = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.09, 0.09), new THREE.MeshStandardMaterial({ color: 0xe5484d })); tip.position.set(-0.42, 0, 0); th.add(tip);
+}
+
 // ---------- concorrente: Codex (nuvem de cristal low-poly azul/roxo com ">_" grande) ----------
 const comp = new THREE.Group(); comp.position.set(6.0, 2.38, 0.0); comp.rotation.y = Math.PI + 0.72; comp.visible = HAS_COMP; scene.add(comp);
 const C = {}; C.body = new THREE.Group(); comp.add(C.body);
@@ -474,7 +482,7 @@ function drawScreen(spec, p, t) {
   });
   banners.forEach(b => {
     const k = Math.min(1, (p - b.f) * 9), e = 1 - Math.pow(1 - k, 3);
-    c.save(); c.translate(w / 2, 400); c.rotate(-0.2); c.translate((1 - e) * -w, 0);
+    c.save(); c.translate(w / 2, b.y || 400); c.rotate(-0.2); c.translate((1 - e) * -w, 0);
     c.fillStyle = b.color; c.fillRect(-w, -68, w * 2, 136); c.fillStyle = "rgba(0,0,0,.18)"; c.fillRect(-w, 68, w * 2, 8);
     c.fillStyle = "#ffffff"; c.font = "bold 64px 'DejaVu Sans', sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(b.text, 0, 6); c.restore();
   });

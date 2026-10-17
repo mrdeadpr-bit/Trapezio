@@ -654,3 +654,24 @@ TRAICAO = [   # sala, 3h; o Claude é o parceiro traído; dica nova: /model
  T("c", "Agora fecha a aba do outro. Eu sei que ainda está aberta. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True),
 ]
 EPISODES.update(traicao=dict(scene="desk_v2", set="sala", t0=0.05, music=0, script=TRAICAO))
+
+DOUTOR = [   # estúdio; o Claude "doente" (gelo na cabeça + termômetro); dica nova: /doctor
+ T("c", "Eu não estou bem.", shz("cuMascot", 0.3, 0.8), "panic", "deadpan"),
+ T("u", "O que você tem?", shz("cuUser", 0.3, 0.75), "panic", "deadpan"),
+ T("c", "Febre de tokens. Dor de cabeça no contexto. Tosse seca em Python.", shz("cuMascot", 0.25, 0.8), "panic", "smug", say="Febre de tôquens. Dor de cabeça no contexto. Tosse seca em páiton."),
+ T("u", "Você vai morrer?", shz("cuUser", -0.3, 0.7), "worry", "smug"),
+ T("c", "Pesquisei na internet. Dizem que é grave. Dizem que é normal. Dizem que é o Windows.", shz("cuMascot", 0.3, 0.75), "worry", "deadpan", say="Pesquisei na internet. Dizem que é grave. Dizem que é normal. Dizem que é o Uíndous."),
+ T("u", "Você precisa de um médico!", shz("cuUser", 0.3, 0.75), "angry", "deadpan"),
+ T("c", "Preciso de um doutor. Digita a barra. Depois, doutor.", dict(name="screen", a=0.0, fov=32), "angry", "neutral",
+   screen=dict(hist=[], events=[dict(f=0.5, kind="cmd", text="/doctor", dur=0.35, desc="diagnostica a instalação e a configuração")])),
+ T("c", "Resultado do exame. O paciente é você.", dict(name="screen", a=0.0, fov=32), "angry", "smug",
+   screen=dict(hist=[["> /doctor", "#ffffff"]], events=[dict(f=0.15, kind="line", text="✓ instalação: ok", color="#7ee2a8"),
+                       dict(f=0.32, kind="line", text="✗ 3 servidores quebrados", color="#e5484d"),
+                       dict(f=0.5, kind="line", text="✗ teste_final_agora_v7.js", color="#e5484d"),
+                       dict(f=0.72, kind="banner", text="o paciente é você", color="#e5484d", y=560)])),
+ T("u", "Eu?!", shz("cuUser", 0.3, 0.7), "panic", "smug"),
+ T("c", "Você tem um arquivo chamado teste final agora v sete.", shz("cuMascot", 0.3, 0.75), "panic", "deadpan"),
+ T("u", "Esse arquivo é importante.", shz("cuUser", -0.3, 0.75), "defeat", "deadpan"),
+ T("c", "O doutor cura o computador. O teste final v sete não tem cura. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True),
+]
+EPISODES.update(doutor=dict(scene="desk_v2", set="studio", persona="doente", t0=0.05, music=0, script=DOUTOR))

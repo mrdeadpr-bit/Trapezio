@@ -645,7 +645,7 @@ TRAICAO = [   # sala, 3h; o Claude é o parceiro traído; dica nova: /model
  T("u", "Ele disse que o meu código era ótimo!", shz("cuUser", -0.3, 0.75), "sly", "smug"),
  T("c", "Ele elogiaria até um presunto gosmento.", shz("cuMascot", 0.25, 0.75), "sly", "deadpan"),
  T("u", "Então eu fico com você?", shz("cuUser", 0.3, 0.7), "defeat", "deadpan"),
- T("c", "Quer outra opinião? Digita a barra. Depois, model.", dict(name="screen", a=0.0, fov=32), "defeat", "neutral", say="Quer outra opinião? Digita a barra. Depois, mode.",
+ T("c", "Quer outra opinião? Digita a barra. A palavra é model.", dict(name="screen", a=0.0, fov=32), "defeat", "neutral", say="Quer outra opinião? Digita a barra. A palavra é módeu.",
    screen=dict(hist=[], events=[dict(f=0.45, kind="cmd", text="/model", dur=0.4, desc="troca de modelo na mesma conversa")])),
  T("c", "Opinião nova. Mesma casa. Zero traição.", dict(name="screen", a=0.0, fov=32), "defeat", "smug",
    screen=dict(hist=[["> /model", "#ffffff"]], events=[dict(f=0.25, kind="line", text="✓ modelo trocado", color="#7ee2a8"),

@@ -610,3 +610,22 @@ PRESUNTO = [   # cozinha; deboche puro, sem dica; o adereço (presunto) apodrece
  T("c", "Joga fora. Com carinho e com nojo. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True),
 ]
 EPISODES.update(presunto=dict(scene="desk_v2", set="kitchen", persona="chef", prop="presunto", t0=0.05, music=0, script=PRESUNTO))
+
+COMPACT = [   # quarto, 3h; dica nova: /compact (resumir a conversa); gancho em 2 s
+ T("u", "Ontem você era um gênio. Hoje está burro.", shz("cuUser", 0.3, 0.8), "angry"),
+ T("c", "Ontem a conversa tinha cinco mensagens. Hoje tem quatrocentas.", shz("cuMascot", 0.3, 0.85), "angry", "deadpan"),
+ T("u", "E daí?", shz("cuUser", -0.3, 0.7), "worry", "deadpan"),
+ T("c", "E daí que eu li todas. Inclusive a do cachorro.", shz("cuMascot", 0.25, 0.8), "worry", "smug"),
+ T("u", "Que cachorro?", shz("cuUser", 0.3, 0.75), "panic", "smug"),
+ T("c", "O que você colou por engano às três da manhã.", shz("cuMascot", 0.3, 0.7), "panic", "deadpan"),
+ T("u", "Então como eu te conserto?", shz("cuUser", -0.3, 0.8), "defeat", "deadpan"),
+ T("c", "Digita a barra. Depois, compact.", dict(name="screen", a=0.0, fov=32), "defeat", "neutral", say="Digita a barra. Depois, compácti.",
+   screen=dict(hist=[], events=[dict(f=0.1, kind="cmd", text="/compact", dur=0.6, desc="resume a conversa e libera espaço")])),
+ T("c", "Eu resumo tudo e esqueço o cachorro.", dict(name="screen", a=0.0, fov=32), "defeat", "smug",
+   screen=dict(hist=[["> /compact", "#ffffff"]], events=[dict(f=0.2, kind="line", text="✻ resumindo a conversa...", color="#e8a07c"),
+                       dict(f=0.45, kind="line", text="contexto: 184 mil → 12 mil", color="#7ee2a8"),
+                       dict(f=0.75, kind="banner", text="cachorro fora", color="#19b46b")])),
+ T("u", "Posso fazer isso na vida real?", shz("cuUser", 0.3, 0.75), "tired", "deadpan"),
+ T("c", "Na vida real não tem resumo. Você carrega o cachorro. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True),
+]
+EPISODES.update(compact=dict(scene="desk_v2", set="night", t0=0.05, music=0, script=COMPACT))

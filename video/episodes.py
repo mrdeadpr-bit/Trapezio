@@ -675,3 +675,23 @@ DOUTOR = [   # estúdio; o Claude "doente" (gelo na cabeça + termômetro); dica
  T("c", "O doutor cura o computador. O teste final v sete não tem cura. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True),
 ]
 EPISODES.update(doutor=dict(scene="desk_v2", set="studio", persona="doente", t0=0.05, music=0, script=DOUTOR))
+
+CHURRASCO = [   # quiosque; humor bobo e cotidiano; dica nova: @arquivo
+ T("u", "Churrasco domingo. Quanta carne eu compro?", shz("cuUser", 0.3, 0.8), "worry"),
+ T("c", "Quantos vão?", shz("cuMascot", 0.3, 0.85), "worry", "deadpan"),
+ T("u", "Uns dez.", shz("cuUser", -0.3, 0.7), "neutral", "deadpan"),
+ T("c", "Dez de verdade ou dez do grupo da família?", shz("cuMascot", 0.25, 0.8), "neutral", "smug"),
+ T("u", "Do grupo.", shz("cuUser", 0.3, 0.75), "defeat", "smug"),
+ T("c", "Então compra para trinta. E reza.", shz("cuMascot", 0.3, 0.7), "defeat", "deadpan"),
+ T("u", "A lista de convidados está num arquivo.", shz("cuUser", -0.3, 0.8), "sly", "deadpan"),
+ T("c", "Digita o símbolo de arroba. E convidados.", dict(name="screen", a=0.0, fov=32), "sly", "neutral",
+   screen=dict(hist=[], events=[dict(f=0.35, kind="cmd", text="@convidados.txt", dur=0.45, desc="mostra o arquivo para o Claude ler")])),
+ T("c", "Trinta e oito nomes. Doze confirmaram. Três são o primo do João.", dict(name="screen", a=0.0, fov=32), "sly", "smug",
+   screen=dict(hist=[["> @convidados.txt", "#ffffff"]], events=[dict(f=0.15, kind="line", text="38 nomes na lista", color="#9a9cae"),
+                       dict(f=0.4, kind="line", text="12 confirmaram", color="#7ee2a8"),
+                       dict(f=0.6, kind="line", text="3 são \"o primo do João\"", color="#e8a07c"),
+                       dict(f=0.8, kind="banner", text="o primo do João", color="#e8a07c", y=560)])),
+ T("u", "Quem é o primo do João?", shz("cuUser", 0.3, 0.75), "panic", "smug"),
+ T("c", "Ninguém sabe. Mas ele vem. E come dois espetos. Segue a gente.", shz("two", 0.3, 1.0), "happy", "happy", last=True),
+]
+EPISODES.update(churrasco=dict(scene="desk_v2", set="quiosque", persona="chef", t0=0.05, music=0, script=CHURRASCO))
